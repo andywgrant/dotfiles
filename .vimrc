@@ -57,7 +57,7 @@ if has('gui_running')
 endif
 if $DISPLAY != "" 
     set mouse=a             " Turn this off for console-only mode
-    set selectmode+=mouse	" Allow the mouse to select
+    set selectmode-=mouse	" Mouse enters visual mode
 endif 
 set spell
 set expandtab                      " expand tabs
@@ -81,7 +81,7 @@ set shiftround              " Round to the nearest shiftwidth when shifting
 set linebreak               " When soft-wrapping long lines, break at a word
 set comments-=s1:/*,mb:*,ex:*/
 set comments+=fb:*,b:\\item
-set formatlistpat=^\\s*[0-9*]\\+[\\]:.)}\\t\ ]\\s*
+set formatlistpat=^\\s*[\\d*]\\+[\\]:.)}\\t\ ]\\s*
 "set grepprg="unbuffer grep\ -nIH\ $*"
 set grepprg=grep\ -nIH\ $*
 set cpoptions=BFt
@@ -114,10 +114,6 @@ set t_Co=256                " use 256 colors
 "let g:zenburn_high_Contrast=1
 "colorscheme lx-256-dark
 colorscheme wombat256mod
-
-" 33ms startup penalty!
-source ~/.vim/ftplugin/man.vim
-
 
 "latex
 let g:tex_comment_nospell = 1
@@ -433,7 +429,7 @@ function ToggleHex()
 endfunction
 
 set mouse=a             " Turn this off for console-only mode
-set selectmode+=mouse	" Allow the mouse to select
+set selectmode-=mouse	" Allow the mouse to enter visual mode 
 
 " Mode-dependent cursor (Mintty)
 let &t_ti.="\e[1 q"
