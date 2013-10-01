@@ -1,11 +1,23 @@
 " LaTeX Box motion functions
 
+" Motion options {{{
+" Opening and closing patterns
+if !exists('g:LatexBox_open_pats')
+	let g:LatexBox_open_pats  = [ '\\{','{','\\(','(','\\\[','\[',
+				\ '\\begin\s*{.\{-}}', '\\left\s*\%([^\\]\|\\.\|\\\a*\)']
+	let g:LatexBox_close_pats = [ '\\}','}','\\)',')','\\\]','\]',
+				\ '\\end\s*{.\{-}}',   '\\right\s*\%([^\\]\|\\.\|\\\a*\)']
+endif
+" }}}
+
 " HasSyntax {{{
 " s:HasSyntax(syntaxName, [line], [col])
 function! s:HasSyntax(syntaxName, ...)
-	let line	= a:0 >= 1 ? a:1 : line('.')
-	let col		= a:0 >= 2 ? a:2 : col('.')
-	return index(map(synstack(line, col), 'synIDattr(v:val, "name") == "' . a:syntaxName . '"'), 1) >= 0
+	let line = a:0 >= 1 ? a:1 : line('.')
+	let col  = a:0 >= 2 ? a:2 : col('.')
+	return index(map(synstack(line, col),
+				\ 'synIDattr(v:val, "name") == "' . a:syntaxName . '"'),
+				\ 1) >= 0
 endfunction
 " }}}
 
@@ -41,9 +53,6 @@ function! s:SearchAndSkipComments(pat, ...)
 endfunction
 " }}}
 
-
-
-
 " Finding Matching Pair {{{
 function! s:FindMatchingPair(mode)
 
@@ -56,12 +65,12 @@ function! s:FindMatchingPair(mode)
 	if LatexBox_InComment() | return | endif
 
 	" open/close pairs (dollars signs are treated apart)
-	let open_pats  = ['\\{','{','\\(','(','\\\[','\[','\\begin\s*{.\{-}}', '\\left\s*\%([^\\]\|\\.\|\\\a*\)']
-	let close_pats = ['\\}','}','\\)',')','\\\]','\]','\\end\s*{.\{-}}',  '\\right\s*\%([^\\]\|\\.\|\\\a*\)']
 	let dollar_pat = '\$'
 	let notbslash = '\%(\\\@<!\%(\\\\\)*\)\@<='
 	let notcomment = '\%(\%(\\\@<!\%(\\\\\)*\)\@<=%.*\)\@<!'
-	let anymatch =  '\(' . join(open_pats + close_pats, '\|') . '\|' . dollar_pat . '\)'
+	let anymatch =  '\('
+				\ . join(g:LatexBox_open_pats + g:LatexBox_close_pats, '\|')
+				\ . '\|' . dollar_pat . '\)'
 
 	let lnum = line('.')
 	let cnum = searchpos('\A', 'cbnW', lnum)[1]
@@ -107,27 +116,39 @@ function! s:FindMatchingPair(mode)
 
 	else
 		" match other pairs
-		for i in range(len(open_pats))
-			let open_pat = notbslash . open_pats[i]
-			let close_pat = notbslash . close_pats[i]
+		for i in range(len(g:LatexBox_open_pats))
+			let open_pat = notbslash . g:LatexBox_open_pats[i]
+			let close_pat = notbslash . g:LatexBox_close_pats[i]
 
 			if delim =~# '^' . open_pat
 				" if on opening pattern, search for closing pattern
-				let [lnum2, cnum2] = searchpairpos('\C' . open_pat, '', '\C' . close_pat, 'nW', 'LatexBox_InComment()', line('w$')*(a:mode =~ 'h\|i') , 200)
+				let [lnum2, cnum2] = searchpairpos('\C' . open_pat, '', '\C'
+							\ . close_pat, 'nW', 'LatexBox_InComment()',
+							\ line('w$')*(a:mode =~ 'h\|i') , 200)
 				if a:mode =~ 'h\|i'
-					execute '2match MatchParen /\%(\%' . lnum . 'l\%' . cnum . 'c' . open_pats[i] . '\|\%' . lnum2 . 'l\%' . cnum2 . 'c' . close_pats[i] . '\)/'
+					execute '2match MatchParen /\%(\%' . lnum . 'l\%' . cnum
+								\ . 'c' . g:LatexBox_open_pats[i] . '\|\%'
+								\ . lnum2 . 'l\%' . cnum2 . 'c'
+								\ . g:LatexBox_close_pats[i] . '\)/'
 				elseif a:mode =~ 'n\|v\|o'
 					call cursor(lnum2,cnum2)
 					if strlen(close_pat)>1 && a:mode =~ 'o'
-						call cursor(lnum2, matchend(getline('.'), '\C' . close_pat, col('.')-1))
+						call cursor(lnum2, matchend(getline('.'), '\C'
+									\ . close_pat, col('.')-1))
 					endif
 				endif
 				break
 			elseif delim =~# '^' . close_pat
 				" if on closing pattern, search for opening pattern
-				let [lnum2, cnum2] =  searchpairpos('\C' . open_pat, '', '\C\%(\%'. lnum . 'l\%' . cnum . 'c\)\@!' . close_pat, 'bnW', 'LatexBox_InComment()', line('w0')*(a:mode =~ 'h\|i') , 200)
+				let [lnum2, cnum2] =  searchpairpos('\C' . open_pat, '',
+							\ '\C\%(\%'. lnum . 'l\%' . cnum . 'c\)\@!'
+							\ . close_pat, 'bnW', 'LatexBox_InComment()',
+							\ line('w0')*(a:mode =~ 'h\|i') , 200)
 				if a:mode =~ 'h\|i'
-					execute '2match MatchParen /\%(\%' . lnum2 . 'l\%' . cnum2 . 'c' . open_pats[i] . '\|\%' . lnum . 'l\%' . cnum . 'c' . close_pats[i] . '\)/'
+					execute '2match MatchParen /\%(\%' . lnum2 . 'l\%' . cnum2
+								\ . 'c' . g:LatexBox_open_pats[i] . '\|\%'
+								\ . lnum . 'l\%' . cnum . 'c'
+								\ . g:LatexBox_close_pats[i] . '\)/'
 				elseif a:mode =~ 'n\|v\|o'
 					call cursor(lnum2,cnum2)
 				endif
@@ -138,19 +159,23 @@ function! s:FindMatchingPair(mode)
 	endif
 endfunction
 
-" disable matchparen autocommands
-augroup LatexBox_HighlightPairs
-	autocmd BufEnter * if !exists("g:loaded_matchparen") || !g:loaded_matchparen | runtime plugin/matchparen.vim | endif
-	autocmd BufEnter *.tex 3match none | unlet! g:loaded_matchparen | au! matchparen
-	autocmd! CursorMoved *.tex call s:FindMatchingPair('h')
-	autocmd! CursorMovedI *.tex call s:FindMatchingPair('i')
-augroup END
+" Allow to disable functionality if desired
+if !exists('g:LatexBox_loaded_matchparen')
+	" Disable matchparen autocommands
+	augroup LatexBox_HighlightPairs
+		autocmd BufEnter * if !exists("g:loaded_matchparen") || !g:loaded_matchparen | runtime plugin/matchparen.vim | endif
+		autocmd BufEnter *.tex 3match none | unlet! g:loaded_matchparen | au! matchparen
+		autocmd! CursorMoved *.tex call s:FindMatchingPair('h')
+		autocmd! CursorMovedI *.tex call s:FindMatchingPair('i')
+	augroup END
+endif
 
-nnoremap <silent> <Plug>LatexBox_JumpToMatch		:call <SID>FindMatchingPair('n')<CR>
-vnoremap <silent> <Plug>LatexBox_JumpToMatch		:call <SID>FindMatchingPair('v')<CR>
-onoremap <silent> <Plug>LatexBox_JumpToMatch		v:call <SID>FindMatchingPair('o')<CR>
+" Use LatexBox'es FindMatchingPair as '%' (enable jump between e.g. $'s)
+nnoremap <silent> <Plug>LatexBox_JumpToMatch	:call <SID>FindMatchingPair('n')<CR>
+vnoremap <silent> <Plug>LatexBox_JumpToMatch	:call <SID>FindMatchingPair('v')<CR>
+onoremap <silent> <Plug>LatexBox_JumpToMatch	v:call <SID>FindMatchingPair('o')<CR>
+
 " }}}
-
 
 " select inline math {{{
 " s:SelectInlineMath(seltype)
@@ -184,8 +209,10 @@ function! s:SelectInlineMath(seltype)
 	endif
 endfunction
 
-vnoremap <silent> <Plug>LatexBox_SelectInlineMathInner :<C-U>call <SID>SelectInlineMath('inner')<CR>
-vnoremap <silent> <Plug>LatexBox_SelectInlineMathOuter :<C-U>call <SID>SelectInlineMath('outer')<CR>
+vnoremap <silent> <Plug>LatexBox_SelectInlineMathInner
+			\ :<C-U>call <SID>SelectInlineMath('inner')<CR>
+vnoremap <silent> <Plug>LatexBox_SelectInlineMathOuter
+			\ :<C-U>call <SID>SelectInlineMath('outer')<CR>
 " }}}
 
 " select current environment {{{
@@ -244,11 +271,9 @@ endfunction
 
 " Table of Contents {{{
 
-"Special UTF-8 conversion
+" Special UTF-8 conversion
 function! s:ConvertBack(line)
-
 	let line = a:line
-
 	if !exists('g:LatexBox_plaintext_toc')
 		let line = substitute(line, "\\\\IeC\s*{\\\\'a}", 'á', 'g')
 		let line = substitute(line, "\\\\IeC\s*{\\\\`a}", 'à', 'g')
@@ -309,18 +334,16 @@ function! s:ConvertBack(line)
 		let line = substitute(line, "\\\\IeC\s*{\\\\^U}", 'Û', 'g')
 		let line = substitute(line, "\\\\IeC\s*{\\\\¨U}", 'Ü', 'g')
 		let line = substitute(line, "\\\\IeC\s*{\\\\\"U}", 'Ü', 'g')
-
 	else
-		" substitute stuff like '\IeC{\"u}' (utf-8 umlauts in section heading) to plain 'u'
+		" substitute stuff like '\IeC{\"u}' (utf-8 umlauts in section heading)
+		" to plain 'u'
 		let line = substitute(line, "\\\\IeC\s*{\\\\.\\(.\\)}", '\1', 'g')
 	endif
 	return line
-
 endfunction
 
-function! s:ReadTOC(auxfile, ...)
-
-	let texfile = fnamemodify(substitute(a:auxfile, '\.aux$', '.tex', ''), ':p')
+function! s:ReadTOC(auxfile, texfile, ...)
+	let texfile = a:texfile
 	let prefix = fnamemodify(a:auxfile, ':p:h')
 
 	if a:0 != 2
@@ -332,14 +355,13 @@ function! s:ReadTOC(auxfile, ...)
 		let fileindices[ texfile ] = []
 	endif
 
-
 	for line in readfile(a:auxfile)
-
 		let included = matchstr(line, '^\\@input{\zs[^}]*\ze}')
-
 		if included != ''
 			" append the input TOX to `toc` and `fileindices`
-			call s:ReadTOC(prefix . '/' . included, toc, fileindices)
+			let newaux = prefix . '/' . included
+			let newtex = fnamemodify(fnamemodify(newaux, ':t:r') . '.tex', ':p')
+			call s:ReadTOC(newaux, newtex, toc, fileindices)
 			continue
 		endif
 
@@ -348,7 +370,8 @@ function! s:ReadTOC(auxfile, ...)
 		" \@writefile{toc}{\contentsline {section}{\tocsection {}{1}{Section Title}}{pagenumber}}
 		" \@writefile{toc}{\contentsline {section}{\numberline {secnum}Section Title}{pagenumber}{otherstuff}}
 
-		let line = matchstr(line, '\\@writefile{toc}{\\contentsline\s*\zs.*\ze}\s*$')
+		let line = matchstr(line,
+					\ '\\@writefile{toc}{\\contentsline\s*\zs.*\ze}\s*$')
 		if empty(line)
 			continue
 		endif
@@ -372,10 +395,13 @@ function! s:ReadTOC(auxfile, ...)
 		if len(tree[1]) > 3 && empty(tree[1][1])
 			call remove(tree[1], 1)
 		endif
-		let secnum = ""
 		if len(tree[1]) > 1
 			if !empty(tree[1][1])
-				let secnum = tree[1][1][0]
+				let secnum = LatexBox_TreeToTex(tree[1][1])
+				let secnum = s:ConvertBack(secnum)
+				let secnum = substitute(secnum, '\\\S\+\s', '', 'g')
+				let secnum = substitute(secnum, '\\\S\+{\(.\{-}\)}', '\1', 'g')
+				let secnum = substitute(secnum, '^{\+\|}\+$', '', 'g')
 			endif
 			let tree = tree[1][2:]
 		else
@@ -389,66 +415,70 @@ function! s:ReadTOC(auxfile, ...)
 
 		" add TOC entry
 		call add(fileindices[texfile], len(toc))
-		call add(toc, {'file': texfile, 'level': level, 'number': secnum, 'text': text, 'page': page})
+		call add(toc, {'file': texfile,
+					\ 'level': level,
+					\ 'number': secnum,
+					\ 'text': text,
+					\ 'page': page})
 	endfor
 
 	return [toc, fileindices]
 
 endfunction
 
-function! LatexBox_TOC()
+function! LatexBox_TOC(...)
 
-	" check if window already exists
+	" Check if window already exists
 	let winnr = bufwinnr(bufnr('LaTeX TOC'))
 	if winnr >= 0
-		silent execute winnr . 'wincmd w'
+		if a:0 == 0
+			silent execute winnr . 'wincmd w'
+		else
+			" Supplying an argument to this function causes toggling instead
+			" of jumping to the TOC window
+			if g:LatexBox_split_resize
+				silent exe "set columns-=" . g:LatexBox_split_width
+			endif
+			silent execute 'bwipeout' . bufnr('LaTeX TOC')
+		endif
 		return
 	endif
 
-	" read TOC
-	let [toc, fileindices] = s:ReadTOC(LatexBox_GetAuxFile())
+	" Read TOC
+	let [toc, fileindices] = s:ReadTOC(LatexBox_GetAuxFile(),
+									 \ LatexBox_GetMainTexFile())
 	let calling_buf = bufnr('%')
 
-	" find closest section in current buffer
+	" Find closest section in current buffer
 	let closest_index = s:FindClosestSection(toc,fileindices)
 
-	execute g:LatexBox_split_side g:LatexBox_split_width . 'vnew LaTeX\ TOC'
-	setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap cursorline nonumber
+	" Create TOC window and set local settings
+	if g:LatexBox_split_resize
+		silent exe "set columns+=" . g:LatexBox_split_width
+	endif
+	silent exe g:LatexBox_split_side g:LatexBox_split_width . 'vnew LaTeX\ TOC'
+	let b:toc = toc
+	let b:toc_numbers = 1
+	let b:calling_win = bufwinnr(calling_buf)
+	setlocal filetype=latextoc
 
+	" Add TOC entries and jump to the closest section
 	for entry in toc
 		call append('$', entry['number'] . "\t" . entry['text'])
 	endfor
-	call append('$', ["", "<Esc>/q: close", "<Space>: jump", "<Enter>: jump and close"])
+	if !g:LatexBox_toc_hidehelp
+		call append('$', "")
+		call append('$', "<Esc>/q: close")
+		call append('$', "<Space>: jump")
+		call append('$', "<Enter>: jump and close")
+		call append('$', "s:       hide numbering")
+	endif
+	0delete _
 
-	0delete
-
-	" syntax
-	syntax match helpText /^<.*/
-	syntax match secNum /^\S\+/ contained
-	syntax match secLine /^\S\+\t\S\+/ contains=secNum
-	syntax match mainSecLine /^[^\.]\+\t.*/ contains=secNum
-	syntax match ssubSecLine /^[^\.]\+\.[^\.]\+\.[^\.]\+\t.*/ contains=secNum
-	highlight link helpText		PreProc
-	highlight link secNum		Number
-	highlight link mainSecLine	Title
-	highlight link ssubSecLine	Comment
-
-	map <buffer> <silent> q			:bwipeout<CR>
-	map <buffer> <silent> <Esc>		:bwipeout<CR>
-	map <buffer> <silent> <Space> 	:call <SID>TOCActivate(0)<CR>
-	map <buffer> <silent> <CR> 		:call <SID>TOCActivate(1)<CR>
-	nnoremap <silent> <buffer> <leftrelease> :call <SID>TOCActivate(0)<cr>
-	nnoremap <silent> <buffer> <2-leftmouse> :call <SID>TOCActivate(1)<cr>
-	nnoremap <buffer> <silent> G	G4k
-
-	setlocal nomodifiable tabstop=8
-
-	let b:toc = toc
-	let b:calling_win = bufwinnr(calling_buf)
-
-	" jump to closest section
 	execute 'normal! ' . (closest_index + 1) . 'G'
 
+	" Lock buffer
+	setlocal nomodifiable
 endfunction
 
 " Binary search for the closest section
@@ -478,48 +508,11 @@ function! s:FindClosestSection(toc, fileindices)
 
 	return a:fileindices[file][imin]
 endfunction
+" }}}
 
-function! s:TOCActivate(close)
-	let n = getpos('.')[1] - 1
-
-	if n >= len(b:toc)
-		return
-	endif
-
-	let entry = b:toc[n]
-
-	let toc_bnr = bufnr('%')
-	let toc_wnr = winnr()
-
-	execute b:calling_win . 'wincmd w'
-
-	let bnr = bufnr(entry['file'])
-	if bnr == -1
-		execute 'badd ' . entry['file']
-		let bnr = bufnr(entry['file'])
-	endif
-
-	execute 'buffer! ' . bnr
-
-	let titlestr = entry['text']
-
-	" Credit goes to Marcin Szamotulski for the following fix. It allows to match through
-	" commands added by TeX.
-	let titlestr = substitute(titlestr, '\\\w*\>\s*\%({[^}]*}\)\?', '.*', 'g')
-
-	let titlestr = escape(titlestr, '\')
-	let titlestr = substitute(titlestr, ' ', '\\_\\s\\+', 'g')
-
-	if search('\\' . entry['level'] . '\_\s*{' . titlestr . '}', 'ws')
-		normal zt
-	endif
-
-	if a:close
-		execute 'bwipeout ' . toc_bnr
-	else
-		execute toc_wnr . 'wincmd w'
-	endif
-endfunction
+" TOC Command {{{
+command! LatexTOC call LatexBox_TOC()
+command! LatexTOCToggle call LatexBox_TOC(1)
 " }}}
 
 " vim:fdm=marker:ff=unix:noet:ts=4:sw=4

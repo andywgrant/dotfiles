@@ -56,22 +56,23 @@
 
 # For use as Windows console
 # Set up your zsh history
-export HISTSIZE=2000
+export HISTSIZE=1000
 export HISTFILE=~/.zhistory
-export SAVEHIST=2000
+export SAVEHIST=1000
 
 # Set up aliases
 alias mv='nocorrect mv'       # no spelling correction on mv
 alias cp='nocorrect cp'       # no spelling correction on cp
 alias mkdir='nocorrect mkdir' # no spelling correction on mkdir
-alias j=jobs
-alias pu=pushd
-alias po=popd
-alias d='dirs -v'
-alias h=history
+#alias j=jobs
+#alias pu=pushd
+#alias po=popd
+#alias d='dirs -v'
+#alias h=history
 alias grep='egrep --color=auto'
 alias ll='ls -l'
 alias la='ls -a'
+alias ping='nocorrect ping'
 
 # List only directories and symbolic
 # links that point to directories
@@ -183,6 +184,19 @@ bindkey ' ' magic-space  # also do history expansion on space
 
 #bindkey ^W backward-delete-word
 
+# taskwarrior tab completion
+fpath=($fpath /usr/share/doc/task/scripts/zsh)
+# be verbose, i.e. show descriptions
+zstyle ':completion:*' verbose yes
+zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
+
+# group by tag names
+zstyle ':completion:*' group-name ''
+
+# autojump
+fpath=($fpath ~/.autojump)
+source /cygdrive/c/Users/andy/.autojump/etc/profile.d/autojump.zsh
+
 autoload -Uz compinit
 compinit -u
 # End of lines added by compinstall
@@ -261,7 +275,7 @@ zstyle ':completion:*' list-colors ''
          zstyle ':completion:*:processes' command 'ps -o pid,s,nice,stime,args'
 
          # ssh hosts matching style
-         zstyle -e ':completion:*:hosts' hosts 'reply=($(cat $HOME/.ssh/known_hosts $HOME/.ssh/known_hosts2 /{usr/local/,}etc/ssh/ssh_known_hosts 2>/dev/null | sed -e "/^#/d" -e "s/ .*\$//" -e "s/,/ /g"))'
+         zstyle -e ':completion:*:hosts' hosts 'reply=($(cat $HOME/.ssh/known_hosts 2>/dev/null | sed -e "/^#/d" -e "s/ .*\$//" -e "s/,/ /g"))'
 
 
 #alias vim='mintty vim'
@@ -347,3 +361,5 @@ autoload -U select-word-style
 select-word-style bash
 
 alias ls='ls --color'
+
+

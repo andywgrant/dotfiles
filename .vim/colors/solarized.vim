@@ -137,8 +137,7 @@
 " Terminals that support italics
 let s:terms_italic=[
             \"rxvt",
-            \"gnome-terminal",
-	    \"cygwin"
+            \"gnome-terminal"
             \]
 " For reference only, terminals are known to be incomptible.
 " Terminals that are in neither list need to be tested.
@@ -318,40 +317,40 @@ elseif g:solarized_termcolors == 256
     let s:cyan        = "37"
     let s:green       = "64"
 else
-    let s:vmode = "cterm"
-    let s:bright = "* term=bold cterm=bold"
-" let s:base03 = "0".s:bright
-" let s:base02 = "0"
-" let s:base01 = "2".s:bright
-" let s:base00 = "3".s:bright
-" let s:base0 = "4".s:bright
-" let s:base1 = "6".s:bright
-" let s:base2 = "7"
-" let s:base3 = "7".s:bright
-" let s:yellow = "3"
-" let s:orange = "1".s:bright
-" let s:red = "1"
-" let s:magenta = "5"
-" let s:violet = "5".s:bright
-" let s:blue = "4"
-" let s:cyan = "6"
-" let s:green = "2"
-    let s:base03 = "DarkGray" " 0*
-    let s:base02 = "Black" " 0
-    let s:base01 = "LightGreen" " 2*
-    let s:base00 = "LightYellow" " 3*
-    let s:base0 = "LightBlue" " 4*
-    let s:base1 = "LightCyan" " 6*
-    let s:base2 = "LightGray" " 7
-    let s:base3 = "White" " 7*
-    let s:yellow = "DarkYellow" " 3
-    let s:orange = "LightRed" " 1*
-    let s:red = "DarkRed" " 1
-    let s:magenta = "DarkMagenta" " 5
-    let s:violet = "LightMagenta" " 5*
-    let s:blue = "DarkBlue" " 4
-    let s:cyan = "DarkCyan" " 6
-    let s:green = "DarkGreen" " 2
+    let s:vmode       = "cterm"
+    let s:bright      = "* term=bold cterm=bold"
+"   let s:base03      = "0".s:bright
+"   let s:base02      = "0"
+"   let s:base01      = "2".s:bright
+"   let s:base00      = "3".s:bright
+"   let s:base0       = "4".s:bright
+"   let s:base1       = "6".s:bright
+"   let s:base2       = "7"
+"   let s:base3       = "7".s:bright
+"   let s:yellow      = "3"
+"   let s:orange      = "1".s:bright
+"   let s:red         = "1"
+"   let s:magenta     = "5"
+"   let s:violet      = "5".s:bright
+"   let s:blue        = "4"
+"   let s:cyan        = "6"
+"   let s:green       = "2"
+    let s:base03      = "DarkGray"      " 0*
+    let s:base02      = "Black"         " 0
+    let s:base01      = "LightGreen"    " 2*
+    let s:base00      = "LightYellow"   " 3*
+    let s:base0       = "LightBlue"     " 4*
+    let s:base1       = "LightCyan"     " 6*
+    let s:base2       = "LightGray"     " 7
+    let s:base3       = "White"         " 7*
+    let s:yellow      = "DarkYellow"    " 3
+    let s:orange      = "LightRed"      " 1*
+    let s:red         = "DarkRed"       " 1
+    let s:magenta     = "DarkMagenta"   " 5
+    let s:violet      = "LightMagenta"  " 5*
+    let s:blue        = "DarkBlue"      " 4
+    let s:cyan        = "DarkCyan"      " 6
+    let s:green       = "DarkGreen"     " 2
 
 endif
 "}}}

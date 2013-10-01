@@ -1,5 +1,3 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =3
-let g:netrw_dirhist_1='/cygdrive/c/Users/andy/Documents/iSEC/Projects/1301_VMWare_VCenter/git'
-let g:netrw_dirhist_2='/cygdrive/c/Users/andy/Personal/tt-rss'
-let g:netrw_dirhist_3='/cygdrive/c/Users/andy/Documents/iSEC'
+let g:netrw_dirhist_cnt =1
+let g:netrw_dirhist_1='/cygdrive/c/Users/andy/.vim/colors'

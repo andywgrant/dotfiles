@@ -175,7 +175,7 @@ snippet figg
 	    \includegraphics[scale=${1}]{images/${2}}
 	\end{center}
 	\caption{${3}}
-	\label{fig:${4}}
+	\label{fig:${4:$2}}
 	\end{figure}
 snippet tikz
 	\begin{figure}
@@ -216,41 +216,43 @@ snippet vuln
 	\vshortterm ${9}
 	
 	\vlongterm ${10}
+snippet lstmp
+	\begin{minipage}{\textwidth}
+	\begin{lstlisting}[style=code,language=${1},numbers=none,caption={${2}}]
+	${3}
+	\end{lstlisting} 
+	%stopzone
+	\end{minipage}
 snippet lst
 	\begin{lstlisting}[style=code,language=${1},numbers=none,caption={${2}}]
 	${3}
 	\end{lstlisting} 
 	%stopzone
-
 snippet fig
 	\begin{figure}[ht]
 		\center \includegraphics[width=1.0\textwidth]{images/${1}}
 		\caption{${2}}
+		\label{fig:${3:$1}}
 	\end{figure}
-
 snippet fu
 	\footnote{\url{${1}}}${2}
-
 snippet url
 	\url{${1}}
-
 snippet href
 	\href{${1}}{${2}}
-
 snippet ...
 	\ldots
-
 snippet q
 	``${1}''${2}
-
 snippet vref
 	\vref{${1}}
-
 snippet pb
 	\pagebreak
-
 snippet strec
-	\ltrec{${1}}{${2}}
-
+	\strec{${1}}{${2}}
 snippet ltrec
 	\ltrec{${1}}{${2}}
+snippet csrf
+	Cross-Site Request Forgery
+snippet xss
+	cross-site scripting
