@@ -284,7 +284,7 @@ vim() {
 }
 
 gvim() {
-    (/cygdrive/c/Program\ Files\ \(x86\)/Vim/vim73/gvim.exe "$*" &) 2> /dev/null
+    (/cygdrive/c/Program\ Files\ \(x86\)/Vim/vim74/gvim.exe "$*" &) 2> /dev/null
 }
 
 python() {

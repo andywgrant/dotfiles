@@ -720,8 +720,8 @@ snippet rf
 	render :file => "${1:filepath}"
 snippet rfu
 	render :file => "${1:filepath}", :use_full_path => ${2:false}
-snippet ri
-	render :inline => "${1:<%= 'hello' %>}"
+#snippet ri
+#	render :inline => "${1:<%= 'hello' %>}"
 snippet ril
 	render :inline => "${1:<%= 'hello' %>}", :locals => { ${2::name} => "${3:value}"${4} }
 snippet rit

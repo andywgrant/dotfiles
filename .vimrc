@@ -32,7 +32,7 @@ imap <F1> <Esc>[s1z=<C-o>a
 map <F4> :w<CR> :!lacheck %<CR>
 noremap <F5> :GundoToggle<CR>
 map <silent> <F6> :w<CR> :!make<CR>
-imap <silent> <F6> :w<CR> :!make<CR>
+imap <silent> <F6> <ESC>:w<CR> :!make<CR>
 map <silent> <F9> :call ToggleVExplorer()<CR>
 map <silent> <F10> :TagbarToggle<CR>
 nnoremap <silent> <F10> :TagbarToggle<CR>
@@ -87,7 +87,7 @@ set et                      " expand tabs
 set diffopt+=iwhite,vertical,filler   " ignore whitespace in diffs
 set hidden                  " allow hidden buffers
 set novb t_vb=              " no visual bell
-set nonu                    " line numbers
+set number                  " line numbers
 set viewdir=$HOME/.views    " keep view states out of my .vim
 set pumheight=15            " trim down the completion popup menu
 set shortmess+=atIoT        " save space in status messages
@@ -115,7 +115,7 @@ set nobackup                " ugh, stop making useless crap
 set nowritebackup           " same with overwriting
 set directory=$TEMP          " litter up /tmp, not the CWD
 set nomodeline              " modelines are dumb
-set tabstop=4 shiftwidth=4
+set tabstop=2 shiftwidth=2
 set backspace=indent,eol,start
 set ruler                   " show position in file
 set title
@@ -291,12 +291,12 @@ let g:notes_directories = ['~/Documents/Notes']
 let g:notes_suffix = '.notes'
 
 " clang
-let g:clang_complete_enable = 1
-let g:clang_library_path='/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib'
-let g:clang_user_options='-fblocks -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator6.1.sdk -D__IPHONE_OS_VERSION_MIN_REQUIRED=40300'
-let g:clang_complete_copen = 1
-let g:clang_snippets = 1
-let g:clang_use_library = 1
+"let g:clang_complete_enable = 1
+"let g:clang_library_path='/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib'
+"let g:clang_user_options='-fblocks -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator6.1.sdk -D__IPHONE_OS_VERSION_MIN_REQUIRED=40300'
+"let g:clang_complete_copen = 1
+"let g:clang_snippets = 1
+"let g:clang_use_library = 1
 
 "tagbar 
 let g:tagbar_type_objc = {
@@ -433,8 +433,8 @@ augroup misc
     au BufWinEnter *.dtrace, set filetype=D
     au BufWinEnter *.fugitiveblame,*.diff, set nospell number
     au BufWinEnter *.plist, call ReadPlist()
-    au BufWinLeave *.txt,*.conf,*.notes mkview
-    au BufWinEnter *.txt,*.conf,*.notes silent loadview
+    au BufWinLeave *.txt,*.conf,.vimrc,*.notes mkview
+    au BufWinEnter *.txt,*.conf,.vimrc,*.notes silent loadview
     au FileType make set diffopt-=iwhite
     au FileType vim set nospell
     au FileType mail set spell complete+=k nonu
@@ -583,7 +583,8 @@ endfunction
 " Added "
 
 set mouse=a             " Turn this off for console-only mode
-set selectmode-=mouse	" Allow the mouse to enter visual mode 
+set selectmode-=mouse	  " Allow the mouse to enter visual mode 
+set cursorline          " Highlight current line, but slow
 
 " Mode-dependent cursor (Mintty)
 let &t_ti.="\e[1 q"
@@ -676,3 +677,59 @@ else
     set t_Co=256                " use 256 colors
     colorscheme wombat256mod
 endif
+
+" CTRL-v in insert mode inserts * register without indent correction
+imap <C-v> <C-r><C-o>*
+
+" Search for selected text.
+" http://vim.wikia.com/wiki/VimTip171
+let s:save_cpo = &cpo | set cpo&vim
+if !exists('g:VeryLiteral')
+  let g:VeryLiteral = 0
+endif
+
+function! s:VSetSearch(cmd)
+  let old_reg = getreg('"')
+  let old_regtype = getregtype('"')
+  normal! gvy
+  if @@ =~? '^[0-9a-z,_]*$' || @@ =~? '^[0-9a-z ,_]*$' && g:VeryLiteral
+    let @/ = @@
+  else
+    let pat = escape(@@, a:cmd.'\')
+    if g:VeryLiteral
+      let pat = substitute(pat, '\n', '\\n', 'g')
+    else
+      let pat = substitute(pat, '^\_s\+', '\\s\\+', '')
+      let pat = substitute(pat, '\_s\+$', '\\s\\*', '')
+      let pat = substitute(pat, '\_s\+', '\\_s\\+', 'g')
+    endif
+    let @/ = '\V'.pat
+  endif
+  normal! gV
+  call setreg('"', old_reg, old_regtype)
+endfunction
+
+vnoremap <silent> * :<C-U>call <SID>VSetSearch('/')<CR>/<C-R>/<CR>
+vnoremap <silent> # :<C-U>call <SID>VSetSearch('?')<CR>?<C-R>/<CR>
+vmap <kMultiply> *
+
+nmap <silent> <Plug>VLToggle :let g:VeryLiteral = !g:VeryLiteral
+  \\| echo "VeryLiteral " . (g:VeryLiteral ? "On" : "Off")<CR>
+if !hasmapto("<Plug>VLToggle")
+  nmap <unique> <Leader>vl <Plug>VLToggle
+endif
+let &cpo = s:save_cpo | unlet s:save_cpo
+
+" Adjust font size
+nnoremap <C-Up> :silent! let &guifont = substitute(
+ \ &guifont,
+ \ ':h\zs\d\+',
+ \ '\=eval(submatch(0)+1)',
+ \ 'g')<CR>
+nnoremap <C-Down> :silent! let &guifont = substitute(
+ \ &guifont,
+ \ ':h\zs\d\+',
+ \ '\=eval(submatch(0)-1)',
+ \ 'g')<CR>
+
+map <C-a> ggVG
