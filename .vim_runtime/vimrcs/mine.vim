@@ -93,6 +93,11 @@ endif
 set background=dark
 colorscheme wombat256mod
 
+" Colors in Ubuntu terminal
+if $TERM == 'xterm'
+    set t_Co=256
+endif
+
 " Set extra options when running in GUI mode
 if has("gui_running")
     set guioptions-=T
