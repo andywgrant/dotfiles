@@ -56,8 +56,12 @@ endfunction
 
 " ----- ack on current identifier in top level directory -----
 if 1
-    function! TAckRun(r)
-        let curword = expand("<cword>")
+    function! TAckRun(r,m)
+        if (a:m == "normal")
+            let curword = expand("<cword>")
+        elseif (a:m == "visual")
+            let curword = s:get_visual_selection()
+        endif
         if (strlen(curword) == 0)
             return
         endif
@@ -77,32 +81,10 @@ if 1
         setlocal nospell
     endfunction
 
-    nnoremap _lg :call TAckRun("-n ")<CR>
-    nnoremap _lG :call TAckRun("-ni ")<CR>
-
-    function! TAckRun_visual(r)
-        let curword = s:get_visual_selection()
-        if (strlen(curword) == 0)
-            return
-        endif
-        let oreport = &report
-        let &report = 99999
-        echo "Running ack " . a:r . curword
-        new
-
-        let s = 'perl \cygwin\usr\local\bin\ack --ignore-file=is:tags ' . a:r . curword . ' -r .'
-        execute "normal i" . s . "\<Esc>"
-        execute '1read !' . s . ''
-        2
-
-        setlocal nomodified
-        setlocal bufhidden=delete
-        let &report = oreport
-        setlocal nospell
-    endfunction
-
-    vnoremap _lg :call TAckRun_visual("-n ")<CR>
-    vnoremap _lG :call TAckRun_visual("-ni ")<CR>
+    nnoremap _lg :call TAckRun("-n ", "normal")<CR>
+    nnoremap _lG :call TAckRun("-ni ", "normal")<CR>
+    vnoremap _lg :call TAckRun("-n ", "visual")<CR>
+    vnoremap _lG :call TAckRun("-ni ", "visual")<CR>
 endif
 
 " ----- Edit file from 'lid' or 'grep -n' format -----
