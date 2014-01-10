@@ -3,10 +3,12 @@ set selectmode-=mouse	  " Allow the mouse to enter visual mode
 set cursorline          " Highlight current line, but slow
 
 " Mode-dependent cursor (Mintty)
-let &t_ti.="\e[1 q"
-let &t_SI.="\e[5 q"
-let &t_EI.="\e[1 q"
-let &t_te.="\e[0 q"
+if has('win32') || has('win64')
+    let &t_ti.="\e[1 q"
+    let &t_SI.="\e[5 q"
+    let &t_EI.="\e[1 q"
+    let &t_te.="\e[0 q"
+endif
 
 " Ctrl-backspace to delete a word
 imap  <C-w>
@@ -15,7 +17,7 @@ imap <C-BS> <C-w>
 " for showing whitespace
 func! ToggleList()
     if exists('g:list')
-       exec ":set nolist"
+        exec ":set nolist"
     else
         exec ":set list"
     endif
@@ -24,11 +26,11 @@ map <C-*> :call ToggleList()<CR>
 
 " Fonts for gVIM
 if has("gui_running")
-  if has("gui_gtk2")
-    set guifont=Inconsolata\ 10
-  elseif has("gui_win32")
-    set guifont=Consolas:h10:cANSI
-  endif
+    if has("gui_gtk2")
+        set guifont=Inconsolata\ 10
+    elseif has("gui_win32")
+        set guifont=Consolas:h10:cANSI
+    endif
 endif
 
 " Ctrl-s for saving when in gVIM
@@ -106,28 +108,28 @@ imap <C-v> <C-r><C-o>*
 " http://vim.wikia.com/wiki/VimTip171
 let s:save_cpo = &cpo | set cpo&vim
 if !exists('g:VeryLiteral')
-  let g:VeryLiteral = 0
+    let g:VeryLiteral = 0
 endif
 
 function! s:VSetSearch(cmd)
-  let old_reg = getreg('"')
-  let old_regtype = getregtype('"')
-  normal! gvy
-  if @@ =~? '^[0-9a-z,_]*$' || @@ =~? '^[0-9a-z ,_]*$' && g:VeryLiteral
-    let @/ = @@
-  else
-    let pat = escape(@@, a:cmd.'\')
-    if g:VeryLiteral
-      let pat = substitute(pat, '\n', '\\n', 'g')
+    let old_reg = getreg('"')
+    let old_regtype = getregtype('"')
+    normal! gvy
+    if @@ =~? '^[0-9a-z,_]*$' || @@ =~? '^[0-9a-z ,_]*$' && g:VeryLiteral
+        let @/ = @@
     else
-      let pat = substitute(pat, '^\_s\+', '\\s\\+', '')
-      let pat = substitute(pat, '\_s\+$', '\\s\\*', '')
-      let pat = substitute(pat, '\_s\+', '\\_s\\+', 'g')
+        let pat = escape(@@, a:cmd.'\')
+        if g:VeryLiteral
+            let pat = substitute(pat, '\n', '\\n', 'g')
+        else
+            let pat = substitute(pat, '^\_s\+', '\\s\\+', '')
+            let pat = substitute(pat, '\_s\+$', '\\s\\*', '')
+            let pat = substitute(pat, '\_s\+', '\\_s\\+', 'g')
+        endif
+        let @/ = '\V'.pat
     endif
-    let @/ = '\V'.pat
-  endif
-  normal! gV
-  call setreg('"', old_reg, old_regtype)
+    normal! gV
+    call setreg('"', old_reg, old_regtype)
 endfunction
 
 vnoremap <silent> * :<C-U>call <SID>VSetSearch('/')<CR>/<C-R>/<CR>
@@ -135,24 +137,24 @@ vnoremap <silent> # :<C-U>call <SID>VSetSearch('?')<CR>?<C-R>/<CR>
 vmap <kMultiply> *
 
 nmap <silent> <Plug>VLToggle :let g:VeryLiteral = !g:VeryLiteral
-  \\| echo "VeryLiteral " . (g:VeryLiteral ? "On" : "Off")<CR>
+            \\| echo "VeryLiteral " . (g:VeryLiteral ? "On" : "Off")<CR>
 if !hasmapto("<Plug>VLToggle")
-  nmap <unique> <Leader>vl <Plug>VLToggle
+    nmap <unique> <Leader>vl <Plug>VLToggle
 endif
 let &cpo = s:save_cpo | unlet s:save_cpo
 " END search for select text
 
 " Adjust font size
 nnoremap <C-Up> :silent! let &guifont = substitute(
- \ &guifont,
- \ ':h\zs\d\+',
- \ '\=eval(submatch(0)+1)',
- \ 'g')<CR>
+            \ &guifont,
+            \ ':h\zs\d\+',
+            \ '\=eval(submatch(0)+1)',
+            \ 'g')<CR>
 nnoremap <C-Down> :silent! let &guifont = substitute(
- \ &guifont,
- \ ':h\zs\d\+',
- \ '\=eval(submatch(0)-1)',
- \ 'g')<CR>
+            \ &guifont,
+            \ ':h\zs\d\+',
+            \ '\=eval(submatch(0)-1)',
+            \ 'g')<CR>
 
 "Select All
 map <C-a> ggVG
@@ -169,3 +171,6 @@ let g:airline_theme="wombat"
 " Override amix_basic.vim's map [jk] (gj|gk)
 map j j
 map k k
+
+" Silent VExplorer
+map <F9> :silent call ToggleVExplorer()<CR>
