@@ -43,6 +43,16 @@ if has('win32') || has('win64')
     set runtimepath+=$HOME/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,$HOME/.vim/after
 endif
 
+" Get currently selected text
+function! s:get_visual_selection()
+    " Why is this not a built-in Vim script function?!
+    let [lnum1, col1] = getpos("'<")[1:2]
+    let [lnum2, col2] = getpos("'>")[1:2]
+    let lines = getline(lnum1, lnum2)
+    let lines[-1] = lines[-1][: col2 - (&selection == 'inclusive' ? 1 : 2)]
+    let lines[0] = lines[0][col1 - 1:]
+    return join(lines, "\n")
+endfunction
 
 " ----- ack on current identifier in top level directory -----
 if 1
@@ -69,6 +79,30 @@ if 1
 
     nnoremap _lg :call TAckRun("-n ")<CR>
     nnoremap _lG :call TAckRun("-ni ")<CR>
+
+    function! TAckRun_visual(r)
+        let curword = s:get_visual_selection()
+        if (strlen(curword) == 0)
+            return
+        endif
+        let oreport = &report
+        let &report = 99999
+        echo "Running ack " . a:r . curword
+        new
+
+        let s = 'perl \cygwin\usr\local\bin\ack --ignore-file=is:tags ' . a:r . curword . ' -r .'
+        execute "normal i" . s . "\<Esc>"
+        execute '1read !' . s . ''
+        2
+
+        setlocal nomodified
+        setlocal bufhidden=delete
+        let &report = oreport
+        setlocal nospell
+    endfunction
+
+    vnoremap _lg :call TAckRun_visual("-n ")<CR>
+    vnoremap _lG :call TAckRun_visual("-ni ")<CR>
 endif
 
 " ----- Edit file from 'lid' or 'grep -n' format -----
