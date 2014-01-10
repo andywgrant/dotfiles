@@ -1,0 +1,10 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =8
+let g:netrw_dirhist_1='/cygdrive/c/Users/andy/.vim_runtime'
+let g:netrw_dirhist_2='C:\Users\andy\Documents\iSEC\Projects\1312_Facebook_WP\facebook-windows8-app-master\Facebook\Facebook-Base'
+let g:netrw_dirhist_3='C:\Users\andy\Documents\iSEC\Projects\1312_Facebook_WP\facebook-windows8-app-master\Facebook\Facebook-Win8-Base\Network'
+let g:netrw_dirhist_4='C:/Users/andy/Documents/iSEC/Projects/1312_Facebook_WP/facebook-windows8-app-master/Facebook/Facebook-Win8-Base'
+let g:netrw_dirhist_5='C:/Users/andy/Documents/iSEC/Projects/1312_Facebook_WP/facebook-windows8-app-master/Facebook'
+let g:netrw_dirhist_6='C:/Users/andy/Documents/iSEC/Projects/1312_Facebook_WP/facebook-windows8-app-master/Facebook/Facebook-Base'
+let g:netrw_dirhist_7='C:/Users/andy/Documents/iSEC/Projects/1312_Facebook_WP/facebook-windows8-app-master/Facebook'
+let g:netrw_dirhist_8='C:/Users/andy/Documents/iSEC/Projects/1312_Facebook_WP/facebook-windows8-app-master/Facebook/Facebook'
