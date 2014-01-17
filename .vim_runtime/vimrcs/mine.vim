@@ -39,9 +39,10 @@ if has("gui_running")
     map <C-s> :update<CR>
 endif
 
-if has('win32') || has('win64')
-    set runtimepath+=$HOME/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,$HOME/.vim/after
-endif
+" Moved to ~/.vimrc
+"if has('win32') || has('win64')
+"    set runtimepath+=$HOME/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,$HOME/.vim/after
+"endif
 
 " Get currently selected text
 function! s:get_visual_selection()
@@ -70,7 +71,7 @@ if 1
         echo "Running ack " . a:r . curword
         new
 
-        let s = 'perl \cygwin\usr\local\bin\ack --ignore-file=is:tags ' . a:r . curword . ' -r .'
+        let s = 'perl \cygwin\usr\local\bin\ack --ignore-file=is:tags ' . a:r . curword
         execute "normal i" . s . "\<Esc>"
         execute '1read !' . s . ''
         2
@@ -81,10 +82,10 @@ if 1
         setlocal nospell
     endfunction
 
-    nnoremap _lg :call TAckRun("-n ", "normal")<CR>
-    nnoremap _lG :call TAckRun("-ni ", "normal")<CR>
-    vnoremap _lg :call TAckRun("-n ", "visual")<CR>
-    vnoremap _lG :call TAckRun("-ni ", "visual")<CR>
+    nnoremap _lg :call TAckRun(" ", "normal")<CR>
+    nnoremap _lG :call TAckRun("i ", "normal")<CR>
+    vnoremap _lg :call TAckRun(" ", "visual")<CR>
+    vnoremap _lG :call TAckRun("i ", "visual")<CR>
 endif
 
 " ----- Edit file from 'lid' or 'grep -n' format -----
@@ -189,9 +190,51 @@ let g:airline#extensions#tabline#enabled = 1
 " Wombat airline theme
 let g:airline_theme="wombat"
 
-" Override amix_basic.vim's map [jk] (gj|gk)
-map j j
-map k k
+" Undo amix_basic.vim's map [jk] (gj|gk)
+unmap j
+unmap k
 
 " Silent VExplorer
 map <F9> :silent call ToggleVExplorer()<CR>
+
+" Default textwidth (to override amix's 500 setting)
+set textwidth=80
+
+" Line numbers
+set number
+
+" Vim-Ack
+let g:ackprg="perl \\cygwin\\usr\\local\\bin\\ack --ignore-file=is:tags -H --nocolor --nogroup --column"
+
+    function! TAckRun(r,m)
+        if (a:m == "normal")
+            let curword = expand("<cword>")
+        elseif (a:m == "visual")
+            let curword = s:get_visual_selection()
+        endif
+        if (strlen(curword) == 0)
+            return
+        endif
+        execut  'Ack ' . curword
+    endfunction
+
+" ctrl-PgUp/PgDn to switch buffers in normal mode
+map [5;5~ :bn<cr>
+map [6;5~ :bp<cr>
+map <C-PageUp> :bn<cr>
+map <C-PageDown> :bp<cr>
+
+" Undo lxcode's left/right/home/end - I'm a Windows user at heart still
+unmap <left>
+unmap <right>
+unmap <home>
+unmap <end>
+
+" Make, F6 because of TexStudio
+map <silent> <F6> :w<CR> :!make<CR>
+imap <silent> <F6> <ESC>:w<CR> :!make<CR>
+
+" Open PDFs using 'start' on Windows
+if has('win32') || has('win64')
+    let g:LatexBox_viewer = "start"
+endif

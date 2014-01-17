@@ -1,17 +1,15 @@
-"ctrl-PgUp/PgDn to switch buffers in normal mode
-map [5;5~ :bn<cr>
-map [6;5~ :bp<cr>
-map <C-PageUp> :bn<cr>
-map <C-PageDown> :bp<cr>
-" map <home> :rewind<cr>
-" map <end> :last<cr>
-" map g<Tab> :bn<CR>
-" nnoremap <C-Tab> gt
-" " Make Y behave like C and D
-" nnoremap Y y$
-" " Use , in addition to \ for the leader
-" let mapleader = ","
-" nmap \ ,
+"left/right arrows to switch buffers in normal mode
+map <right> :bn<cr>
+map <left> :bp<cr>
+map <home> :rewind<cr>
+map <end> :last<cr>
+map g<Tab> :bn<CR>
+nnoremap <C-Tab> gt
+" Make Y behave like C and D
+nnoremap Y y$
+" Use , in addition to \ for the leader
+let mapleader = ","
+nmap \ ,
 " save my pinky
 nore ; :
 " But allow the original functionality of ; and ,
@@ -31,8 +29,7 @@ nmap <F1> [s1z=<C-o>
 imap <F1> <Esc>[s1z=<C-o>a
 map <F4> :w<CR> :!lacheck %<CR>
 noremap <F5> :GundoToggle<CR>
-map <silent> <F6> :w<CR> :!make<CR>
-imap <silent> <F6> <ESC>:w<CR> :!make<CR>
+map <F8> :w<CR> :!make<CR>
 map <silent> <F9> :call ToggleVExplorer()<CR>
 map <silent> <F10> :TagbarToggle<CR>
 nnoremap <silent> <F10> :TagbarToggle<CR>
@@ -43,8 +40,8 @@ nmap <C-p> :exe "ptag" expand("<cword>")<CR>
 nnoremap <silent> <C-c> :call QuickfixToggle()<cr>
 set pastetoggle=<F11> 
 " Window movement
-"nnoremap <C-j> <C-W>w
-"nnoremap <C-k> <C-W>W
+nnoremap <C-j> <C-W>w
+nnoremap <C-k> <C-W>W
 " Keep selected blocks selected when shifting
 vmap > >gv
 vmap < <gv
@@ -67,7 +64,7 @@ if has('gui')
     set gcr=n:blinkon0          " don't blink the cursor in normal mode
     set guioptions=aAegiM       " get rid of useless stuff in the gui
     if has("gui_macvim")
-        set guifont=Monaco:h14
+        set guifont=Inconsolata:h18
         set clipboard=unnamed
     else
         set guifont=Inconsolata\ 14
@@ -82,16 +79,15 @@ if $DISPLAY != ""
     set mouse=a             " Turn this off for console-only mode
     set selectmode+=mouse	" Allow the mouse to select
 endif 
-set spell
 set et                      " expand tabs
 set diffopt+=iwhite,vertical,filler   " ignore whitespace in diffs
 set hidden                  " allow hidden buffers
 set novb t_vb=              " no visual bell
-set number                  " line numbers
+set nonu                    " line numbers
 set viewdir=$HOME/.views    " keep view states out of my .vim
 set pumheight=15            " trim down the completion popup menu
 set shortmess+=atIoT        " save space in status messages
-set scrolloff=7             " 7 lines of buffer before scrolling
+set scrolloff=3             " 3 lines of buffer before scrolling
 set ignorecase              " case insensitive searches
 set smartcase               " unless you type uppercase explicitly
 set smarttab                " use shiftwidth instead of tab stops
@@ -113,7 +109,7 @@ set completeopt=menuone,longest
 set tags=tags;/             " use first tags file in a directory tree
 set nobackup                " ugh, stop making useless crap
 set nowritebackup           " same with overwriting
-set directory=$TEMP          " litter up /tmp, not the CWD
+set directory=/tmp          " litter up /tmp, not the CWD
 set nomodeline              " modelines are dumb
 set tabstop=4 shiftwidth=4
 set backspace=indent,eol,start
@@ -134,7 +130,6 @@ set lazyredraw ttyfast      " go fast
 set errorfile=/tmp/errors.vim
 set cscopequickfix=s-,c-,d-,i-,t-,e-        " omfg so much nicer
 set foldlevelstart=2        " the default level of fold nesting on startup
-set virtualedit=block       " when doing block select, allow going past the end of lines
 set cryptmethod=blowfish    " in case I ever decide to use vim -x
 "set updatecount=100 updatetime=3600000		" saves power on notebooks
 
@@ -145,8 +140,8 @@ if exists('&autochdir')
 endif
 
 " colors
-" set t_Co=256                " use 256 colors
-"colorscheme lx-256-dark
+set t_Co=256                " use 256 colors
+colorscheme lx-256-dark
 
 " 33ms startup penalty!
 source ~/.vim/ftplugin/man.vim
@@ -177,11 +172,20 @@ let g:tex_comment_nospell = 1
 "let g:LatexBox_latexmk_options = "-pdflatex=lualatex -latex=lualatex"
 let g:LatexBox_latexmk_options = "-xelatex"
 let g:LatexBox_build_dir = "$HOME/.build"
-let g:LatexBox_latexmk_async = 1
+" Work around the fact that cmdline macvim doesn't support server mode
+if has("gui_macvim")
+    let g:LatexBox_latexmk_async = 1
+else
+    if has("macunix")
+        let g:LatexBox_latexmk_async = 1
+    else 
+        let g:LatexBox_latexmk_async = 0
+    endif
+endif
 if has("macunix")
     let g:LatexBox_viewer = "open"
 else
-    let g:LatexBox_viewer = "start"
+    let g:LatexBox_viewer = "evince"
 endif
 let g:LatexBox_split_side = "rightbelow"
 let g:LatexBox_Folding = 1
@@ -210,12 +214,12 @@ augroup latex
     " The NoStarch style is a bit crufty and needs pdflatex
     au BufWinEnter book.tex let g:LatexBox_latexmk_options = "" 
     au BufWinEnter book.tex let g:LatexBox_fold_envs = 1
-    au BufWritePost *.tex Latexmk
+"    au BufWritePost *.tex Latexmk
     au BufWinLeave *.tex,*.sty mkview
     au BufWinEnter *.tex,*.sty silent loadview
     au FileType tex syntax spell toplevel 
     au FileType tex set spell textwidth=78 smartindent
-    au FileType tex set comments+=b:\\item formatoptions-=q formatoptions+=w foldlevel=6
+    au FileType tex set comments+=b:\\item formatoptions-=q formatoptions+=w foldlevelstart=6
     au FileType tex imap <buffer> [[ \begin{
     au FileType tex imap <buffer> ]] <Plug>LatexCloseCurEnv
     au FileType tex imap <S-Enter> \pagebreak
@@ -243,10 +247,6 @@ autocmd FileType *
             \      call SuperTabChain(g:myfunc, "<c-p>") |
             \      call SuperTabSetDefaultCompletionType("<c-x><c-u>") |
             \  endif
-
-" seek
-" This seems to break dp and do in vimdiff
-"let g:seek_enable_jumps = 1
 
 " cctree
 if has("macunix")
@@ -286,17 +286,13 @@ let g:statline_mixed_indent=0
 " gundo
 let g:gundo_close_on_revert=1
 
-" vim-notes
-let g:notes_directories = ['~/Documents/Notes']
-let g:notes_suffix = '.notes'
-
 " clang
-"let g:clang_complete_enable = 1
-"let g:clang_library_path='/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib'
-"let g:clang_user_options='-fblocks -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator6.1.sdk -D__IPHONE_OS_VERSION_MIN_REQUIRED=40300'
-"let g:clang_complete_copen = 1
-"let g:clang_snippets = 1
-"let g:clang_use_library = 1
+let g:clang_complete_enable = 1
+let g:clang_library_path='/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib'
+let g:clang_user_options='-fblocks -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator6.1.sdk -D__IPHONE_OS_VERSION_MIN_REQUIRED=40300'
+let g:clang_complete_copen = 1
+let g:clang_snippets = 1
+let g:clang_use_library = 1
 
 "tagbar 
 let g:tagbar_type_objc = {
@@ -402,8 +398,9 @@ augroup python
 augroup end
 
 augroup markdown
-    au BufWinLeave *.md, mkview
-    au BufWinEnter *.md, silent loadview
+    au BufWinEnter *.notes set filetype=markdown
+    au BufWinLeave *.md,*.notes, mkview
+    au BufWinEnter *.md,*.notes, silent loadview
     au BufWinEnter *.md,*.notes, imap <C-l> <C-t>
     au BufWinEnter *.md,*.notes, imap <C-h> <C-d>
     au BufWinEnter *.md,*.notes,*mutt*, imap >> <C-t>
@@ -429,6 +426,7 @@ augroup msdocs
 augroup end
 
 augroup misc
+    au BufWinEnter *.nmap, set syntax=nmap
     au BufWinEnter *.scala, set filetype=scala
     au BufWinEnter *.dtrace, set filetype=D
     au BufWinEnter *.fugitiveblame,*.diff, set nospell number
