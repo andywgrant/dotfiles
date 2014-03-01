@@ -82,10 +82,25 @@ if 1
         setlocal nospell
     endfunction
 
+    " Vim-Ack
+    let g:ackprg="perl \\cygwin\\usr\\local\\bin\\ack --ignore-file=is:tags -H --nocolor --nogroup --column"
+
+    function! TAckRun(r,m)
+        if (a:m == "normal")
+            let curword = expand("<cword>")
+        elseif (a:m == "visual")
+            let curword = s:get_visual_selection()
+        endif
+        if (strlen(curword) == 0)
+            return
+        endif
+        execut  'Ack ' . a:r . ' ' . curword
+    endfunction
+
     nnoremap _lg :call TAckRun(" ", "normal")<CR>
-    nnoremap _lG :call TAckRun("i ", "normal")<CR>
+    nnoremap _lG :call TAckRun("-i ", "normal")<CR>
     vnoremap _lg :call TAckRun(" ", "visual")<CR>
-    vnoremap _lG :call TAckRun("i ", "visual")<CR>
+    vnoremap _lG :call TAckRun("-i ", "visual")<CR>
 endif
 
 " ----- Edit file from 'lid' or 'grep -n' format -----
@@ -185,7 +200,7 @@ map <C-a> ggVG
 set cmdheight=1
 
 " List buffers
-let g:airline#extensions#tabline#enabled = 1
+"let g:airline#extensions#tabline#enabled = 1
 
 " Wombat airline theme
 let g:airline_theme="wombat"
@@ -202,21 +217,6 @@ set textwidth=80
 
 " Line numbers
 set number
-
-" Vim-Ack
-let g:ackprg="perl \\cygwin\\usr\\local\\bin\\ack --ignore-file=is:tags -H --nocolor --nogroup --column"
-
-    function! TAckRun(r,m)
-        if (a:m == "normal")
-            let curword = expand("<cword>")
-        elseif (a:m == "visual")
-            let curword = s:get_visual_selection()
-        endif
-        if (strlen(curword) == 0)
-            return
-        endif
-        execut  'Ack ' . curword
-    endfunction
 
 " ctrl-PgUp/PgDn to switch buffers in normal mode
 map [5;5~ :bn<cr>
@@ -238,3 +238,25 @@ imap <silent> <F6> <ESC>:w<CR> :!make<CR>
 if has('win32') || has('win64')
     let g:LatexBox_viewer = "start"
 endif
+
+" I like CtrlP in file mode by default instead of mixed mode
+let g:ctrlp_cmd = 'CtrlP'
+map <Leader>e :CtrlPMixed<CR>
+
+" Stop overriding the <c-p> mapping
+let g:yankring_replace_n_pkey = ''
+nmap <C-p> :call TogglePTag()<CR>
+
+" If the preview window is open, close it; else ptag
+function! TogglePTag()
+    if getwinvar(winnr("#"), "&pvw") == 1
+        pclose
+    else
+        try
+            exe "ptag" expand("<cword>")
+        catch
+            echo "No tags found for: " . expand("<cword>")
+        endtry
+    endif
+endfunction
+

@@ -1,3 +1,5 @@
+" Make space clear highlighted searches
+nmap <silent> <space> :noh<CR>
 "left/right arrows to switch buffers in normal mode
 map <right> :bn<cr>
 map <left> :bp<cr>
@@ -46,7 +48,7 @@ nnoremap <C-k> <C-W>W
 vmap > >gv
 vmap < <gv
 " Insert a single character with space
-nmap <Space> :exec "normal i".nr2char(getchar())."\e"<CR>
+"nmap <Space> :exec "normal i".nr2char(getchar())."\e"<CR>
 nmap <Leader>x :call system("cd `dirname %` && urxvt")<CR>
 " Change to the directory of the current file
 nmap cd :lcd %:h \| :pwd<CR>
@@ -94,7 +96,7 @@ set smarttab                " use shiftwidth instead of tab stops
 set wildmode=longest,list   " shows a list of candidates when tab-completing
 set wildmenu                " use a more functional completion menu when tab-completing
 set encoding=utf-8          " always use utf-8
-"set hlsearch                " highlight all search matches
+set hlsearch                " highlight all search matches
 set nojoinspaces            " disallow two spaces after a period when joining
 set formatoptions=qnrtlm    " auto-formatting style for bullets and comments
 set autoindent
@@ -103,7 +105,8 @@ set linebreak               " When soft-wrapping long lines, break at a word
 set comments-=s1:/*,mb:*,ex:*/
 set comments+=fb:*,b:\\item
 set formatlistpat=^\\s*\\([0-9]\\+\\\|[a-z]\\)[\\].:)}]\\s\\+
-set grepprg=grep\ -R\ --exclude=\"*scope.out\"\ --color=always\ -nIH\ $* " need to make this portable
+" need to make this portable
+set grepprg=grep\ -R\ --exclude=\"*scope.out\"\ --color=always\ -nIH\ $* 
 set cpoptions=BFt
 set completeopt=menuone,longest
 set tags=tags;/             " use first tags file in a directory tree
@@ -124,7 +127,7 @@ set showmatch               " show the matching terminating bracket
 set suffixes=.out           " set priority for tab completion
 set wildignore+=*.bak,~*,*.o,*.aux,*.dvi,*.bbl,*.blg,*.orig,*.toc,*.fls
 set wildignore+=*.loc,*.gz,*.tv,*.ilg,*.lltr,*.lov,*.lstr,*.idx,*.pdf
-set wildignore+=*.fdb_latexmk,*.ind,*.cg,*.tdo,*.log,*.latexmain
+set wildignore+=*.fdb_latexmk,*.ind,*.cg,*.tdo,*.log,*.latexmain,*.out
 set sidescroll=1            " soft wrap long lines
 set lazyredraw ttyfast      " go fast
 set errorfile=/tmp/errors.vim
@@ -154,7 +157,7 @@ endif
 let g:netrw_browse_split=4
 let g:netrw_winsize=25
 let g:netrw_banner=0
-"let g:netrw_list_hide='\(^\|\s\s\)\zs\.\S\+' "hide files by default
+let g:netrw_list_hide='\(^\|\s\s\)\zs\.\S\+' "hide files by default
 
 " quickfixsigns
 let g:quickfixsigns_classes=['qfl', 'loc', 'marks', 'vcsdiff', 'breakpoints']
@@ -190,7 +193,7 @@ endif
 let g:LatexBox_split_side = "rightbelow"
 let g:LatexBox_Folding = 1
 let g:LatexBox_fold_preamble = 1
-let g:LatexBox_fold_envs = 0
+let g:LatexBox_fold_envs = 1
 let g:LatexBox_quickfix = 0
 let g:LatexBox_show_warnings = 0
 let g:LatexBox_ignore_warnings = [
@@ -373,8 +376,8 @@ augroup cjava
     au!
     au BufNewFile *.c r ~/.vim/templates/template.c
     au BufWinEnter *.[mCchly] set nospell comments+=s1:/*,mb:*,ex:*/
-    au BufRead,BufNewFile *.m,*.xm setfiletype objc
-    au BufRead,BufNewFile *.m,*.xm let c_no_curly_error = 1
+    au BufWinEnter,BufNewFile *.m,*.xm,*.xmi setfiletype objc
+    au BufWinEnter,BufNewFile *.m,*.xm,*.xmi let c_no_curly_error = 1
     au BufWinEnter *.cpp,*.java set nospell number
     au BufWinLeave *.[mchly] mkview
     au BufWinEnter *.[mchly] silent loadview
@@ -418,6 +421,8 @@ augroup quickfix
     au FileType qf, nnoremap <silent> <buffer> <left> :col<CR>
     au FileType qf, setlocal statusline=\ %n\ \ %f%=L%l/%L\ %P
     au BufReadPost quickfix call GrepColors()
+    au BufWinEnter quickfix call GrepColors()
+    au BufWinEnter qf:list call GrepColors()
 augroup end
 
 augroup msdocs
@@ -426,11 +431,11 @@ augroup msdocs
 augroup end
 
 augroup misc
+    au BufWinEnter *.applescript set filetype=applescript
     au BufWinEnter *.nmap, set syntax=nmap
     au BufWinEnter *.scala, set filetype=scala
     au BufWinEnter *.dtrace, set filetype=D
     au BufWinEnter *.fugitiveblame,*.diff, set nospell number
-    au BufWinEnter *.plist, call ReadPlist()
     au BufWinLeave *.txt,*.conf,.vimrc,*.notes mkview
     au BufWinEnter *.txt,*.conf,.vimrc,*.notes silent loadview
     au FileType make set diffopt-=iwhite
@@ -492,17 +497,6 @@ function! ToggleVExplorer()
       Vexplore
       let t:expl_buf_num = bufnr("%")
   endif
-endfunction
-
-" Some quick bindings to edit binary plists
-command -bar PlistXML :set binary | :1,$!plutil -convert xml1 /dev/stdin -o -
-command -bar Plistbin :1,$!plutil -convert binary1 /dev/stdin -o -
-
-fun ReadPlist()
-    if getline("'[") =~ "^bplist"
-        :PlistXML
-        set filetype=xml
-    endif
 endfunction
 
 " ex command for toggling hex mode - define mapping if desired

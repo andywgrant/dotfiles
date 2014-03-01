@@ -223,7 +223,7 @@ esac
 case $TERM in
     cygwin)
         precmd () {print -Pn "\033];%m: %~\007"}
-	preexec () { print -Pn "\e]0;$1\a" }
+        preexec () { print -Pn "\e]0;$1\a" }
         ;;
 esac
 
@@ -251,7 +251,7 @@ zstyle ':completion:*' list-colors ''
 # # allow one error for every three characters typed in approximate completer
  zstyle -e ':completion:*:approximate:*' max-errors \
          'reply=( $(( ($#PREFIX+$#SUFFIX)/3 )) numeric )'
-         
+
          # insert all expansions for expand completer
          zstyle ':completion:*:expand:*' tag-order all-expansions
 
@@ -284,7 +284,7 @@ vim() {
 }
 
 gvim() {
-    (/cygdrive/c/Program\ Files\ \(x86\)/Vim/vim74/gvim.exe "$*" &) 2> /dev/null
+    (/cygdrive/c/Program\ Files\ \(x86\)/Vim/vim74/gvim.exe "`cygpath -w $*`" &) 2> /dev/null
 }
 
 python() {
@@ -362,4 +362,4 @@ select-word-style bash
 
 alias ls='ls --color'
 
-
+alias ack='ack --ignore-file=is:tags'
