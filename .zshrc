@@ -1,59 +1,3 @@
-## Lines configured by zsh-newuser-install
-#HISTFILE=~/.histfile
-#HISTSIZE=1000
-#SAVEHIST=1000
-#bindkey -e
-## End of lines configured by zsh-newuser-install
-## The following lines were added by compinstall
-#zstyle :compinstall filename '/cygdrive/c/Users/andy/.zshrc'
-#
-#autoload -Uz compinit
-#compinit -u
-## End of lines added by compinstall
-#
-#source ~/.prompt
-#cygwin_bash_prompt
-#
-#case $TERM in
-#    xterm*)
-#        precmd () {print -Pn "\033]0;%~\007"}
-#        ;;
-#esac
-#
-#
-#case $TERM in
-#    cygwin)
-#        precmd () {print -Pn "\033];%~\007"}
-#	preexec () { print -Pn "\e]0;$1\a" }
-#        ;;
-#esac
-#
-#
-#unsetopt LIST_BEEP
-
-#
-# $Id: zshrc,v 2.0 1996/05/02 22:57:04 hzoli Exp $
-#
-# Generic .zshrc file for zsh 2.7
-# Contains modifications to make WinZsh work better
-# these have not been fully tested
-#
-# .zshrc is sourced in interactive shells.  It
-# should contain commands to set up aliases, functions,
-# options, key bindings, etc.
-#
-
-# Search path for the cd command
-#cdpath=(.. ~ ~/src ~/zsh)
-
-# Use hard limits, except for a smaller stack and no core dumps
-#unlimit
-#limit stack 8192
-#limit core 0
-#limit -s
-
-#umask 022
-
 # For use as Windows console
 # Set up your zsh history
 export HISTSIZE=1000
@@ -81,72 +25,11 @@ alias lsd='ls -ld *(-/DN)'
 # List only file beginning with "."
 alias lsa='ls -ld .*'
 
-# Shell functions
-#setenv() { export $1=$2 }  # csh compatibility
-
-# Where to look for autoloaded function definitions
-#fpath=(~/.zfunc)
-
-# Autoload all shell functions from all directories
-# in $fpath that have the executable bit on
-# (the executable bit is not necessary, but gives
-# you an easy way to stop the autoloading of a
-# particular shell function).
-#for dirname in $fpath
-#do
-#  autoload $dirname/*(.x:t)
-#done
-
 # Global aliases -- These do not have to be
 # at the beginning of the command line.
 alias -g M='|more'
 alias -g H='|head'
 alias -g T='|tail'
-
-# Set up WINNT shares and servers in UNC format?
-#shares=(\\\\server1\\share1 \\\\server2\\share2  )
-#servers=(\\\\server1 \\\\server2 )
-
-# Set entires so man pages will work
-# These should probably be set in a man.config instead of here
-# Note: manpath (lowercase) is an array, MANPATH (UPPERCASE) is a string.
-#manpath=("$ZSHROOT"/man "$ZSHROOT"/usr/man "$ZSHROOT"/usr/lang/man
-#	"$ZSHROOT"/usr/local/man)
-#export MANPATH
-#export MANSECT=1:1p:8:2:3:3p:4:5:6:7:9:0p:tcl:n:l:p:o
-
-# Filename suffixes to ignore during completion
-#fignore=(.o .c~ .old .pro)
-#fignore=(.obj .pdb .bsc .ilk .idb  .OBJ .PDB .BSC .ILK .IDB)
-
-# Hosts to use for completion
-#hosts=(`hostname` ftp.math.gatech.edu prep.ai.mit.edu wuarchive.wustl.edu)
-
-# Set prompts
-#PROMPT='%m%# '    # default prompt
-#PROMPT='%3C>' #'%/>' #'%{f9%}%/%{gg%}(%{f2%}%?%{gg%})\>'
-#RPROMPT=' %~'     # prompt for right side of screen
-#prompt3='%{fc%}Do you mean: %R ?(y|n|e)%{gg%} ' # prompt for spelling correction
-
-# Some environment variables
-#export MAIL=/var/spool/mail/$USERNAME
-#export LESS=-cex3M
-#export HELPDIR=/usr/local/lib/zsh/help  # directory for run-help function to find docs
-
-#DIRSTACKSIZE=20
-
-# Watch for my friends
-#watch=($(cat ~/.friends))      # watch for people in .friends file
-#watch=(notme)                   # watch for everybody but me
-#LOGCHECK=300                    # check every 5 min for login/logout activity
-#WATCHFMT='%n %a %l from %m at %t.'
-
-# Set/unset  shell options
-#setopt   notify globdots correct pushdtohome cdablevars autolist
-#setopt   correctall autocd recexact longlistjobs
-#setopt   autoresume histignoredups pushdsilent noclobber
-#setopt   autopushd pushdminus extendedglob rcquotes mailwarning
-#unsetopt bgnice autoparamslash
 
 setopt autolist correctall automenu
 #setopt pushdtohome pushdsilent #autopushd
@@ -169,23 +52,21 @@ compctl -v unset typeset declare vared readonly export integer
 compctl -e disable
 compctl -d enable
 
-# Some nice key bindings
-#bindkey '^X^Z' universal-argument ' ' magic-space
-#bindkey '^X^A' vi-find-prev-char-skip
-#bindkey '^Z' accept-and-hold
-#bindkey -s '\M-/' \\\\
-#bindkey -s '\M-=' \|
-
 # bindkey -v             # vi key bindings
-
 bindkey -e               # emacs key bindings
 bindkey ' ' magic-space  # also do history expansion on space
-
 
 #bindkey ^W backward-delete-word
 
 # taskwarrior tab completion
-fpath=($fpath /usr/share/doc/task/scripts/zsh)
+zstyle ':completion:*:*:task:*' verbose yes
+zstyle ':completion:*:*:task:*:descriptions' format '%U%B%d%b%u'
+
+zstyle ':completion:*:*:task:*' group-name ''
+
+alias t=task
+fpath=($fpath /usr/share/doc/task/scripts/zsh /usr/local/share/zsh/site-functions/)
+
 # be verbose, i.e. show descriptions
 zstyle ':completion:*' verbose yes
 zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
@@ -193,42 +74,11 @@ zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
 # group by tag names
 zstyle ':completion:*' group-name ''
 
-# autojump
-fpath=($fpath ~/.autojump)
-source /cygdrive/c/Users/andy/.autojump/etc/profile.d/autojump.zsh
-
 autoload -Uz compinit
 compinit -u
-# End of lines added by compinstall
-# The following lines were added by compinstall
-#
-#zstyle ':completion:*' completer _complete _ignored
-#zstyle ':completion:*' matcher-list '' '' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}'
-#zstyle :compinstall filename '/c/Users/andy/.zshrc'
-#
-#autoload -Uz compinit
-#compinit
-# End of lines added by compinstall
 
 source ~/.prompt
 cygwin_bash_prompt
-
-case $TERM in
-    xterm*)
-        precmd () {print -Pn "\033]0;%m: %~\007"}
-        ;;
-esac
-
-
-case $TERM in
-    cygwin)
-        precmd () {print -Pn "\033];%m: %~\007"}
-        preexec () { print -Pn "\e]0;$1\a" }
-        ;;
-esac
-
-#bindkey "^[[1~" beginning-of-line
-#bindkey "^[[4~" end-of-line
 
 bindkey  "^[[1~"    beginning-of-line
 bindkey  "^[[4~"     end-of-line
@@ -241,57 +91,40 @@ bindkey  "^[[C"   forward-char
 
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 
-alias start='cygstart'
-
 zstyle ':completion:*' list-colors ''
 
 # list of completers to use
  zstyle ':completion:*::::' completer _expand _complete _ignored
 #
 # # allow one error for every three characters typed in approximate completer
- zstyle -e ':completion:*:approximate:*' max-errors \
-         'reply=( $(( ($#PREFIX+$#SUFFIX)/3 )) numeric )'
+zstyle -e ':completion:*:approximate:*' max-errors \
+    'reply=( $(( ($#PREFIX+$#SUFFIX)/3 )) numeric )'
 
-         # insert all expansions for expand completer
-         zstyle ':completion:*:expand:*' tag-order all-expansions
+# insert all expansions for expand completer
+zstyle ':completion:*:expand:*' tag-order all-expansions
 
-         # formatting and messages
-         zstyle ':completion:*' verbose yes
-         zstyle ':completion:*:descriptions' format '%B%d%b'
-         zstyle ':completion:*:messages' format '%d'
-         #zstyle ':completion:*:warnings' format 'No matches for: %d'
-         #zstyle ':completion:*:corrections' format '%B%d (errors: %e)%b'
-         zstyle ':completion:*' group-name ''
-         zstyle ':completion:*' menu select=long-list select=0
-         zstyle ':completion:*' list-colors ''
+# formatting and messages
+zstyle ':completion:*' verbose yes
+zstyle ':completion:*:descriptions' format '%B%d%b'
+zstyle ':completion:*:messages' format '%d'
+#zstyle ':completion:*:warnings' format 'No matches for: %d'
+#zstyle ':completion:*:corrections' format '%B%d (errors: %e)%b'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' menu select=long-list select=0
+zstyle ':completion:*' list-colors ''
 
-         # match uppercase from lowercase
-         zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+# match uppercase from lowercase
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 
-         # offer indexes before parameters in subscripts
-         zstyle ':completion:*:*:-subscript-:*' tag-order indexes parameters
+# offer indexes before parameters in subscripts
+zstyle ':completion:*:*:-subscript-:*' tag-order indexes parameters
 
-         # command for process lists
-         zstyle ':completion:*:processes' command 'ps -o pid,s,nice,stime,args'
+# command for process lists
+zstyle ':completion:*:processes' command 'ps -o pid,s,nice,stime,args'
 
-         # ssh hosts matching style
-         zstyle -e ':completion:*:hosts' hosts 'reply=($(cat $HOME/.ssh/known_hosts 2>/dev/null | sed -e "/^#/d" -e "s/ .*\$//" -e "s/,/ /g"))'
+# ssh hosts matching style
+zstyle -e ':completion:*:hosts' hosts 'reply=($(cat $HOME/.ssh/known_hosts 2>/dev/null | sed -e "/^#/d" -e "s/ .*\$//" -e "s/,/ /g"))'
 
-
-#alias vim='mintty vim'
-vim() {
-    (mintty vim "$*" &) 2> /dev/null
-}
-
-gvim() {
-    (/cygdrive/c/Program\ Files\ \(x86\)/Vim/vim74/gvim.exe "`cygpath -w $*`" &) 2> /dev/null
-}
-
-python() {
-        (/cygdrive/c/python27/python `cygpath -w $1` $argv[2,-1])
-}
-
-export CYGWIN="nodosfilewarning"
 
 #{{{ Completion Stuff
 
@@ -360,6 +193,40 @@ stty stop undef
 autoload -U select-word-style
 select-word-style bash
 
-alias ls='ls --color'
-
 alias ack='ack --ignore-file=is:tags'
+
+case $TERM in
+    xterm*)
+        precmd () {print -Pn "\033]0;%m: %~\007"}
+        # Mac AutoJump
+        [[ -s `brew --prefix`/etc/autojump.sh ]] && . `brew --prefix`/etc/autojump.sh
+        ;;
+esac
+
+case $TERM in
+    cygwin)
+        precmd () {print -Pn "\033];%m: %~\007"}
+        preexec () { print -Pn "\e]0;$1\a" }
+        # autojump
+        fpath=($fpath ~/.autojump)
+        source /cygdrive/c/Users/andy/.autojump/etc/profile.d/autojump.zsh
+        alias start='cygstart'
+        #alias vim='mintty vim'
+        vim() {
+            (mintty vim "$*" &) 2> /dev/null
+        }
+
+        gvim() {
+            (/cygdrive/c/Program\ Files\ \(x86\)/Vim/vim74/gvim.exe "`cygpath -w $*`" &) 2> /dev/null
+        }
+
+        python() {
+            (/cygdrive/c/python27/python `cygpath -w $1` $argv[2,-1])
+        }
+
+        export CYGWIN="nodosfilewarning"
+        alias ls='ls --color'
+        ;;
+esac
+
+path=($HOME/bin $path)
