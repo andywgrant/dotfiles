@@ -83,7 +83,11 @@ if 1
     endfunction
 
     " Vim-Ack
+if has("mac") || has("macunix")
+    let g:ackprg="/usr/local/bin/ack --ignore-file=is:tags -H --nocolor --nogroup --column"
+else
     let g:ackprg="perl \\cygwin\\usr\\local\\bin\\ack --ignore-file=is:tags -H --nocolor --nogroup --column"
+endif
 
     function! TAckRun(r,m)
         if (a:m == "normal")
@@ -260,3 +264,7 @@ function! TogglePTag()
     endif
 endfunction
 
+" Don't open MacVim in fullscreen mode
+if has("gui_macvim")
+    set fuoptions=
+endif
