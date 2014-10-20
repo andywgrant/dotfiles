@@ -6,7 +6,15 @@
 :TScratch	tlib.txt	/*:TScratch*
 :TTimeCommand	tlib.txt	/*:TTimeCommand*
 :TVarArg	tlib.txt	/*:TVarArg*
-g:tlib#Filter_cnfx#expander	tlib.txt	/*g:tlib#Filter_cnfx#expander*
+Add()	tlib.txt	/*Add()*
+TestArgs()	tlib.txt	/*TestArgs()*
+TestArgs1()	tlib.txt	/*TestArgs1()*
+TestArgs2()	tlib.txt	/*TestArgs2()*
+TestArgs3()	tlib.txt	/*TestArgs3()*
+TestGetArg()	tlib.txt	/*TestGetArg()*
+TestGetArg1()	tlib.txt	/*TestGetArg1()*
+g:tlib#Filter_glob#char	tlib.txt	/*g:tlib#Filter_glob#char*
+g:tlib#Filter_glob#seq	tlib.txt	/*g:tlib#Filter_glob#seq*
 g:tlib#cache#dont_purge	tlib.txt	/*g:tlib#cache#dont_purge*
 g:tlib#cache#max_filename	tlib.txt	/*g:tlib#cache#max_filename*
 g:tlib#cache#purge_days	tlib.txt	/*g:tlib#cache#purge_days*
@@ -34,6 +42,11 @@ g:tlib#input#or	tlib.txt	/*g:tlib#input#or*
 g:tlib#input#sortprefs_threshold	tlib.txt	/*g:tlib#input#sortprefs_threshold*
 g:tlib#input#use_popup	tlib.txt	/*g:tlib#input#use_popup*
 g:tlib#scratch#hidden	tlib.txt	/*g:tlib#scratch#hidden*
+g:tlib#sys#check_cygpath	tlib.txt	/*g:tlib#sys#check_cygpath*
+g:tlib#sys#cygwin_expr	tlib.txt	/*g:tlib#sys#cygwin_expr*
+g:tlib#sys#cygwin_path_rx	tlib.txt	/*g:tlib#sys#cygwin_path_rx*
+g:tlib#sys#null	tlib.txt	/*g:tlib#sys#null*
+g:tlib#sys#windows	tlib.txt	/*g:tlib#sys#windows*
 g:tlib#vcs#check	tlib.txt	/*g:tlib#vcs#check*
 g:tlib#vcs#def	tlib.txt	/*g:tlib#vcs#def*
 g:tlib#vcs#executables	tlib.txt	/*g:tlib#vcs#executables*
@@ -57,8 +70,8 @@ o_sp	tlib.txt	/*o_sp*
 standard-paragraph	tlib.txt	/*standard-paragraph*
 tlib#Filter_cnf#New()	tlib.txt	/*tlib#Filter_cnf#New()*
 tlib#Filter_cnfd#New()	tlib.txt	/*tlib#Filter_cnfd#New()*
-tlib#Filter_cnfx#New()	tlib.txt	/*tlib#Filter_cnfx#New()*
 tlib#Filter_fuzzy#New()	tlib.txt	/*tlib#Filter_fuzzy#New()*
+tlib#Filter_glob#New()	tlib.txt	/*tlib#Filter_glob#New()*
 tlib#Object#Methods()	tlib.txt	/*tlib#Object#Methods()*
 tlib#Object#New()	tlib.txt	/*tlib#Object#New()*
 tlib#World#New()	tlib.txt	/*tlib#World#New()*
@@ -78,10 +91,12 @@ tlib#agent#EditFileInTab()	tlib.txt	/*tlib#agent#EditFileInTab()*
 tlib#agent#EditFileInVSplit()	tlib.txt	/*tlib#agent#EditFileInVSplit()*
 tlib#agent#EditItem()	tlib.txt	/*tlib#agent#EditItem()*
 tlib#agent#EditReturnValue()	tlib.txt	/*tlib#agent#EditReturnValue()*
+tlib#agent#End()	tlib.txt	/*tlib#agent#End()*
 tlib#agent#ExecAgentByName()	tlib.txt	/*tlib#agent#ExecAgentByName()*
 tlib#agent#Exit()	tlib.txt	/*tlib#agent#Exit()*
 tlib#agent#GotoLine()	tlib.txt	/*tlib#agent#GotoLine()*
 tlib#agent#Help()	tlib.txt	/*tlib#agent#Help()*
+tlib#agent#Home()	tlib.txt	/*tlib#agent#Home()*
 tlib#agent#Input()	tlib.txt	/*tlib#agent#Input()*
 tlib#agent#NewItem()	tlib.txt	/*tlib#agent#NewItem()*
 tlib#agent#Null()	tlib.txt	/*tlib#agent#Null()*
@@ -116,6 +131,7 @@ tlib#arg#Get()	tlib.txt	/*tlib#arg#Get()*
 tlib#arg#Key()	tlib.txt	/*tlib#arg#Key()*
 tlib#arg#Let()	tlib.txt	/*tlib#arg#Let()*
 tlib#arg#StringAsKeyArgs()	tlib.txt	/*tlib#arg#StringAsKeyArgs()*
+tlib#arg#StringAsKeyArgsEqual()	tlib.txt	/*tlib#arg#StringAsKeyArgsEqual()*
 tlib#autocmdgroup#Init()	tlib.txt	/*tlib#autocmdgroup#Init()*
 tlib#balloon#Expr()	tlib.txt	/*tlib#balloon#Expr()*
 tlib#balloon#Register()	tlib.txt	/*tlib#balloon#Register()*
@@ -149,6 +165,7 @@ tlib#cache#Dir()	tlib.txt	/*tlib#cache#Dir()*
 tlib#cache#Filename()	tlib.txt	/*tlib#cache#Filename()*
 tlib#cache#Get()	tlib.txt	/*tlib#cache#Get()*
 tlib#cache#ListFilesInCache()	tlib.txt	/*tlib#cache#ListFilesInCache()*
+tlib#cache#MTime()	tlib.txt	/*tlib#cache#MTime()*
 tlib#cache#MaybePurge()	tlib.txt	/*tlib#cache#MaybePurge()*
 tlib#cache#Purge()	tlib.txt	/*tlib#cache#Purge()*
 tlib#cache#Save()	tlib.txt	/*tlib#cache#Save()*
@@ -177,6 +194,7 @@ tlib#dir#Pop()	tlib.txt	/*tlib#dir#Pop()*
 tlib#dir#Push()	tlib.txt	/*tlib#dir#Push()*
 tlib#eval#FormatValue()	tlib.txt	/*tlib#eval#FormatValue()*
 tlib#file#Absolute()	tlib.txt	/*tlib#file#Absolute()*
+tlib#file#Canonic()	tlib.txt	/*tlib#file#Canonic()*
 tlib#file#Join()	tlib.txt	/*tlib#file#Join()*
 tlib#file#Relative()	tlib.txt	/*tlib#file#Relative()*
 tlib#file#Split()	tlib.txt	/*tlib#file#Split()*
@@ -210,6 +228,7 @@ tlib#list#Flatten()	tlib.txt	/*tlib#list#Flatten()*
 tlib#list#Inject()	tlib.txt	/*tlib#list#Inject()*
 tlib#list#Remove()	tlib.txt	/*tlib#list#Remove()*
 tlib#list#RemoveAll()	tlib.txt	/*tlib#list#RemoveAll()*
+tlib#list#ToDictionary()	tlib.txt	/*tlib#list#ToDictionary()*
 tlib#list#Uniq()	tlib.txt	/*tlib#list#Uniq()*
 tlib#list#Zip()	tlib.txt	/*tlib#list#Zip()*
 tlib#map#PumAccept()	tlib.txt	/*tlib#map#PumAccept()*
@@ -222,6 +241,7 @@ tlib#paragraph#Move()	tlib.txt	/*tlib#paragraph#Move()*
 tlib#persistent#Dir()	tlib.txt	/*tlib#persistent#Dir()*
 tlib#persistent#Filename()	tlib.txt	/*tlib#persistent#Filename()*
 tlib#persistent#Get()	tlib.txt	/*tlib#persistent#Get()*
+tlib#persistent#MTime()	tlib.txt	/*tlib#persistent#MTime()*
 tlib#persistent#Save()	tlib.txt	/*tlib#persistent#Save()*
 tlib#persistent#Value()	tlib.txt	/*tlib#persistent#Value()*
 tlib#progressbar#Display()	tlib.txt	/*tlib#progressbar#Display()*
@@ -245,6 +265,12 @@ tlib#string#TrimLeft()	tlib.txt	/*tlib#string#TrimLeft()*
 tlib#string#TrimRight()	tlib.txt	/*tlib#string#TrimRight()*
 tlib#syntax#Collect()	tlib.txt	/*tlib#syntax#Collect()*
 tlib#syntax#Names()	tlib.txt	/*tlib#syntax#Names()*
+tlib#sys#ConvertPath()	tlib.txt	/*tlib#sys#ConvertPath()*
+tlib#sys#FileArgs()	tlib.txt	/*tlib#sys#FileArgs()*
+tlib#sys#GetCmd()	tlib.txt	/*tlib#sys#GetCmd()*
+tlib#sys#IsCygwinBin()	tlib.txt	/*tlib#sys#IsCygwinBin()*
+tlib#sys#IsExecutable()	tlib.txt	/*tlib#sys#IsExecutable()*
+tlib#sys#MaybeUseCygpath()	tlib.txt	/*tlib#sys#MaybeUseCygpath()*
 tlib#tab#BufMap()	tlib.txt	/*tlib#tab#BufMap()*
 tlib#tab#Set()	tlib.txt	/*tlib#tab#Set()*
 tlib#tab#TabWinNr()	tlib.txt	/*tlib#tab#TabWinNr()*
@@ -270,8 +296,10 @@ tlib#var#Get()	tlib.txt	/*tlib#var#Get()*
 tlib#var#Let()	tlib.txt	/*tlib#var#Let()*
 tlib#var#List()	tlib.txt	/*tlib#var#List()*
 tlib#vcs#Diff()	tlib.txt	/*tlib#vcs#Diff()*
+tlib#vcs#Executable()	tlib.txt	/*tlib#vcs#Executable()*
 tlib#vcs#FindVCS()	tlib.txt	/*tlib#vcs#FindVCS()*
 tlib#vcs#Ls()	tlib.txt	/*tlib#vcs#Ls()*
+tlib#vim#CopyFunction()	tlib.txt	/*tlib#vim#CopyFunction()*
 tlib#vim#Maximize()	tlib.txt	/*tlib#vim#Maximize()*
 tlib#vim#RestoreWindow()	tlib.txt	/*tlib#vim#RestoreWindow()*
 tlib#win#GetLayout()	tlib.txt	/*tlib#win#GetLayout()*

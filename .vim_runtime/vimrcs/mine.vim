@@ -215,6 +215,8 @@ unmap k
 
 " Silent VExplorer
 map <F9> :silent call ToggleVExplorer()<CR>
+" Default to tree mode
+let g:netrw_liststyle=3
 
 " Default textwidth (to override amix's 500 setting)
 set textwidth=80
@@ -268,3 +270,10 @@ endfunction
 if has("gui_macvim")
     set fuoptions=
 endif
+
+" Disable bufexplorer due to multi-tab issue in MacVim
+let g:bufexplorer_version = "disabled"
+
+set noequalalways " Do not equalize the windows when closing a split; because of Tagbar
+
+let delimitMate_autoclose = 0 " Stop inserting extra quotes and such

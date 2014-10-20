@@ -25,8 +25,20 @@ setlocal efm+=%E!\ %m
 " More info for undefined control sequences
 setlocal efm+=%Z<argument>\ %m
 
+" More info for some errors
+setlocal efm+=%Cl.%l\ %m
+
 " Show or ignore warnings
 if g:LatexBox_show_warnings
+	" Parse biblatex warnings
+	setlocal efm+=%-C(biblatex)%.%#in\ t%.%#
+	setlocal efm+=%-C(biblatex)%.%#Please\ v%.%#
+	setlocal efm+=%-C(biblatex)%.%#LaTeX\ a%.%#
+	setlocal efm+=%-Z(biblatex)%m
+
+	" Parse hyperref warnings
+	setlocal efm+=%-C(hyperref)%.%#on\ input\ line\ %l.
+
 	for w in g:LatexBox_ignore_warnings
 		let warning = escape(substitute(w, '[\,]', '%\\\\&', 'g'), ' ')
 		exe 'setlocal efm+=%-G%.%#'. warning .'%.%#'
@@ -44,6 +56,7 @@ endif
 
 " Push file to file stack
 setlocal efm+=%+P**%f
+setlocal efm+=%+P**\"%f\"
 
 " Ignore unmatched lines
 setlocal efm+=%-G%.%#
@@ -102,17 +115,24 @@ function! LatexBox_GetMainTexFile()
 	endfor
 
 	" 3. scan current file for "\begin{document}"
-	if &filetype == 'tex' && search('\C\\begin\_\s*{document}', 'nw') != 0
+	if &filetype == 'tex' && search('\m\C\\begin\_\s*{document}', 'nw') != 0
 		return expand('%:p')
 	endif
 
-	" 4 borrow the Vim-Latex-Suite method of finding it
-	if Tex_GetMainFileName() != expand('%:p')
-		let b:main_tex_file = Tex_GetMainFileName()
+	" 4. use 'main.tex' if it exists in the same directory (and is readable)
+	let s:main_dot_tex_file=expand('%:p:h') . '/main.tex'
+	if filereadable(s:main_dot_tex_file)
+		let b:main_tex_file=s:main_dot_tex_file
 		return b:main_tex_file
 	endif
 
-	" 5. prompt for file with completion
+	" 5. borrow the Vim-Latex-Suite method of finding it
+	if LatexBox_GetMainFileName() != expand('%:p')
+		let b:main_tex_file = LatexBox_GetMainFileName()
+		return b:main_tex_file
+	endif
+
+	" 6. prompt for file with completion
 	let b:main_tex_file = s:PromptForMainFile()
 	return b:main_tex_file
 endfunction
@@ -120,6 +140,8 @@ endfunction
 function! s:PromptForMainFile()
 	let saved_dir = getcwd()
 	execute 'cd ' . fnameescape(expand('%:p:h'))
+
+	" Prompt for file
 	let l:file = ''
 	while !filereadable(l:file)
 		let l:file = input('main LaTeX file: ', '', 'file')
@@ -128,6 +150,16 @@ function! s:PromptForMainFile()
 		endif
 	endwhile
 	let l:file = fnamemodify(l:file, ':p')
+
+	" Make persistent
+	let l:persistent = ''
+	while l:persistent !~ '\v^(y|n)'
+		let l:persistent = input('make choice persistent? (y, n) ')
+		if l:persistent == 'y'
+			call writefile([], l:file . '.latexmain')
+		endif
+	endwhile
+
 	execute 'cd ' . fnameescape(saved_dir)
 	return l:file
 endfunction
@@ -205,15 +237,16 @@ if !exists('g:LatexBox_viewer')
 	endif
 endif
 
-function! LatexBox_View()
+function! LatexBox_View(...)
+	let lvargs = join(a:000, ' ')
 	let outfile = LatexBox_GetOutputFile()
 	if !filereadable(outfile)
 		echomsg fnamemodify(outfile, ':.') . ' is not readable'
 		return
 	endif
-	let cmd = g:LatexBox_viewer . ' ' . shellescape(outfile)
+	let cmd = g:LatexBox_viewer . ' ' . lvargs . ' ' . shellescape(outfile)
 	if has('win32')
-		let cmd = '!start /b' . cmd . ' >nul'
+		let cmd = '!start /b ' . cmd . ' >nul'
 	else
 		let cmd = '!' . cmd . ' &>/dev/null &'
 	endif
@@ -223,7 +256,7 @@ function! LatexBox_View()
 	endif
 endfunction
 
-command! LatexView call LatexBox_View()
+command! -nargs=* LatexView call LatexBox_View('<args>')
 " }}}
 
 " In Comment {{{
