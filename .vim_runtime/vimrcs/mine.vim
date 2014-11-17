@@ -277,3 +277,20 @@ let g:bufexplorer_version = "disabled"
 set noequalalways " Do not equalize the windows when closing a split; because of Tagbar
 
 let delimitMate_autoclose = 0 " Stop inserting extra quotes and such
+
+" Add "Commented Vulns" to tagbar for latex
+let g:tagbar_type_tex = {
+    \ 'ctagstype' : 'latex',
+    \ 'kinds'     : [
+        \ 's:sections',
+        \ 'g:graphics',
+        \ 'l:labels',
+        \ 'r:refs:1',
+        \ 'p:pagerefs:1',
+        \ 'v:vulns',
+        \ 'V:commented vulns',
+        \ 'r:strecs',
+        \ 'R:ltrecs'
+    \ ],
+    \ 'sort'    : 0,
+\ }
