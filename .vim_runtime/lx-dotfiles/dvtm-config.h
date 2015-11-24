@@ -26,22 +26,21 @@ static Color colors[] = {
 #define SELECTED_ATTR   (COLOR(BLUE) | A_NORMAL)
 /* curses attributes for normal (not selected) windows */
 #define NORMAL_ATTR     (COLOR(DEFAULT) | A_NORMAL)
+/* curses attributes for a window with pending urgent flag */
+#define URGENT_ATTR     NORMAL_ATTR
 /* curses attributes for the status bar */
 #define BAR_ATTR        (COLOR(BLUE) | A_NORMAL)
+/* characters for beginning and end of status bar message */
+#define BAR_BEGIN       '['
+#define BAR_END         ']'
 /* status bar (command line option -s) position */
 #define BAR_POS		BAR_TOP /* BAR_BOTTOM, BAR_OFF */
 /* whether status bar should be hidden if only one client exists */
 #define BAR_AUTOHIDE    true
-/* determines whether the statusbar text should be right or left aligned */
-#define BAR_ALIGN       ALIGN_RIGHT
-/* separator between window title and window number */
-#define SEPARATOR " | "
-/* printf format string for the window title, first %s
- * is replaced by the title, second %s is replaced by
- * the SEPARATOR, %d stands for the window number */
-#define TITLE "[%s%s#%d]"
 /* master width factor [0.1 .. 0.9] */
 #define MFACT 0.5
+/* number of clients in master area */
+#define NMASTER 1
 /* scroll back buffer size in lines */
 #define SCROLL_HISTORY 3000
 /* printf format string for the tag in the status bar */
@@ -52,8 +51,10 @@ static Color colors[] = {
 #define TAG_NORMAL   (COLOR(DEFAULT) | A_NORMAL)
 /* curses attributes for not selected tags which contain windows */
 #define TAG_OCCUPIED (COLOR(BLUE) | A_NORMAL)
+/* curses attributes for not selected tags which with urgent windows */
+#define TAG_URGENT (COLOR(BLUE) | A_NORMAL | A_BLINK)
 
-const char tags[][8] = { "1", "2", "3", "4" };
+const char tags[][8] = { "1", "2", "3", "4", "5" };
 
 #include "tile.c"
 #include "grid.c"
@@ -70,25 +71,33 @@ static Layout layouts[] = {
 };
 
 #define MOD CTRL('g')
+#define TAGKEYS(KEY,TAG) \
+	{ { MOD, 'v', KEY,     }, { view,           { tags[TAG] }               } }, \
+	{ { MOD, 't', KEY,     }, { tag,            { tags[TAG] }               } }, \
+	{ { MOD, 'V', KEY,     }, { toggleview,     { tags[TAG] }               } }, \
+	{ { MOD, 'T', KEY,     }, { toggletag,      { tags[TAG] }               } },
 
 /* you can at most specifiy MAX_ARGS (3) number of arguments */
 static KeyBinding bindings[] = {
 	{ { MOD, 'c',          }, { create,         { NULL }                    } },
 	{ { MOD, 'C',          }, { create,         { NULL, NULL, "$CWD" }      } },
-	{ { MOD, 'x',          }, { killclient,     { NULL }                    } },
+	{ { MOD, 'x', 'x',     }, { killclient,     { NULL }                    } },
 	{ { MOD, 'j',          }, { focusnext,      { NULL }                    } },
-//	{ { MOD, 'u',          }, { focusnextnm,    { NULL }                    } },
-//	{ { MOD, 'i',          }, { focusprevnm,    { NULL }                    } },
+	{ { MOD, 'J',          }, { focusnextnm,    { NULL }                    } },
+	{ { MOD, 'K',          }, { focusprevnm,    { NULL }                    } },
 	{ { MOD, 'k',          }, { focusprev,      { NULL }                    } },
 	{ { MOD, 't',          }, { setlayout,      { "[]=" }                   } },
 	{ { MOD, 'g',          }, { setlayout,      { "+++" }                   } },
 	{ { MOD, 'b',          }, { setlayout,      { "TTT" }                   } },
 	{ { MOD, 'm',          }, { setlayout,      { "[ ]" }                   } },
 	{ { MOD, ' ',          }, { setlayout,      { NULL }                    } },
+	{ { MOD, '=',          }, { incnmaster,     { "+1" }                    } },
+	{ { MOD, '-',          }, { incnmaster,     { "-1" }                    } },
 	{ { MOD, 'h',          }, { setmfact,       { "-0.05" }                 } },
 	{ { MOD, 'l',          }, { setmfact,       { "+0.05" }                 } },
 	{ { MOD, '.',          }, { toggleminimize, { NULL }                    } },
 	{ { MOD, 's',          }, { togglebar,      { NULL }                    } },
+	{ { MOD, 'S',          }, { togglebarpos,   { NULL }                    } },
 	{ { MOD, 'M',          }, { togglemouse,    { NULL }                    } },
 	{ { MOD, 'i',          }, { zoom ,          { NULL }                    } },
 	{ { MOD, '1',          }, { focusn,         { "1" }                     } },
@@ -101,11 +110,10 @@ static KeyBinding bindings[] = {
 	{ { MOD, '8',          }, { focusn,         { "8" }                     } },
 	{ { MOD, '9',          }, { focusn,         { "9" }                     } },
 	{ { MOD, '\t',         }, { focuslast,      { NULL }                    } },
-	{ { MOD, 'Q',          }, { quit,           { NULL }                    } },
+	{ { MOD, 'q', 'q',     }, { quit,           { NULL }                    } },
 	{ { MOD, 'a',          }, { togglerunall,   { NULL }                    } },
 	{ { MOD, CTRL('L'),    }, { redraw,         { NULL }                    } },
 	{ { MOD, 'r',          }, { redraw,         { NULL }                    } },
-	{ { MOD, 'B',          }, { togglebell,     { NULL }                    } },
 	{ { MOD, 'e',          }, { copymode,       { NULL }                    } },
 	{ { MOD, '/',          }, { copymode,       { "/" }                     } },
 	{ { MOD, 'p',          }, { paste,          { NULL }                    } },
@@ -120,24 +128,15 @@ static KeyBinding bindings[] = {
 	{ { MOD, KEY_F(2),     }, { view,           { tags[1] }                 } },
 	{ { MOD, KEY_F(3),     }, { view,           { tags[2] }                 } },
 	{ { MOD, KEY_F(4),     }, { view,           { tags[3] }                 } },
-	{ { MOD, 'v', '1'      }, { view,           { tags[0] }                 } },
-	{ { MOD, 'v', '2'      }, { view,           { tags[1] }                 } },
-	{ { MOD, 'v', '3'      }, { view,           { tags[2] }                 } },
-	{ { MOD, 'v', '4'      }, { view,           { tags[3] }                 } },
+	{ { MOD, KEY_F(5),     }, { view,           { tags[4] }                 } },
+	{ { MOD, 'v', '0'      }, { view,           { NULL }                    } },
 	{ { MOD, 'v', '\t',    }, { viewprevtag,    { NULL }                    } },
 	{ { MOD, 't', '0'      }, { tag,            { NULL }                    } },
-	{ { MOD, 't', '1'      }, { tag,            { tags[0] }                 } },
-	{ { MOD, 't', '2'      }, { tag,            { tags[1] }                 } },
-	{ { MOD, 't', '3'      }, { tag,            { tags[2] }                 } },
-	{ { MOD, 't', '4'      }, { tag,            { tags[3] }                 } },
-	{ { MOD, 'V', '1'      }, { toggleview,     { tags[0] }                 } },
-	{ { MOD, 'V', '2'      }, { toggleview,     { tags[1] }                 } },
-	{ { MOD, 'V', '3'      }, { toggleview,     { tags[2] }                 } },
-	{ { MOD, 'V', '4'      }, { toggleview,     { tags[3] }                 } },
-	{ { MOD, 'T', '1'      }, { toggletag,      { tags[0] }                 } },
-	{ { MOD, 'T', '2'      }, { toggletag,      { tags[1] }                 } },
-	{ { MOD, 'T', '3'      }, { toggletag,      { tags[2] }                 } },
-	{ { MOD, 'T', '4'      }, { toggletag,      { tags[3] }                 } },
+	TAGKEYS( '1',                              0)
+	TAGKEYS( '2',                              1)
+	TAGKEYS( '3',                              2)
+	TAGKEYS( '4',                              3)
+	TAGKEYS( '5',                              4)
 };
 
 static const ColorRule colorrules[] = {
@@ -208,8 +207,10 @@ static char const * const keytable[] = {
  * redirected (i.e. not a terminal).
  */
 static Editor editors[] = {
-	{ .name = "vis",  .argv = { "vis",  "+%d", NULL      }, .filter = true  },
-	{ .name = "sandy",.argv = { "sandy","-d",  "-", NULL }, .filter = true  },
+	{ .name = "vis",         .argv = { "vis", "+%d", "-", NULL  }, .filter = true  },
+	{ .name = "sandy",       .argv = { "sandy", "-d", "-", NULL }, .filter = true  },
+	{ .name = "dvtm-editor", .argv = { "dvtm-editor", "-", NULL }, .filter = true  },
 	{ .name = "vim",  .argv = { "vim",  "+%d", "-", NULL }, .filter = false },
-	{ .name = "less", .argv = { "less", "+%d", "-", NULL }, .filter = false },
+	{ .name = "less",        .argv = { "less", "+%d", NULL      }, .filter = false },
+	{ .name = "more",        .argv = { "more", "+%d", NULL      }, .filter = false },
 };

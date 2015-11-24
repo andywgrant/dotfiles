@@ -27,6 +27,8 @@ map <silent> <Leader>\ :noh<CR>
 " correct spelling
 nmap <F1> [s1z=<C-o>
 imap <F1> <Esc>[s1z=<C-o>a
+" Clean up left side
+nmap <F2> :set nonu foldcolumn=0<CR>:QuickfixsignsToggle<CR>
 map <F8> :w<CR> :!make<CR>
 map <silent> <F9> :call ToggleVExplorer()<CR>
 nnoremap <silent> <F10> :TagbarToggle<CR>
@@ -35,10 +37,12 @@ set pastetoggle=<F11>
 map <F12> :cn<CR>
 " preview the tag under the cursor
 nmap <C-p> :exe "ptag" expand("<cword>")<CR>
-nnoremap <silent> <C-c> :call QuickfixToggle()<cr>
+nnoremap <silent> <C-c> :QFix<cr>
 " Window movement
-nnoremap <C-j> <C-W>w
-nnoremap <C-k> <C-W>W
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-h> <C-w>h
+nnoremap <C-l> <C-w>l
 " Keep selected blocks selected when shifting
 vmap > >gv
 vmap < <gv
@@ -49,23 +53,30 @@ nmap cd :lcd %:h \| :pwd<CR>
 " This works when I type it, but not here...
 nmap dav ?%<CR>2d/%---\|\\vtitle<CR>
 nmap <Leader>fw :StripWhitespace<CR>
+" Base64 conversion
+vnoremap <leader>64 c<c-r>=system('base64',@")<cr><esc>
+vnoremap <leader>64d c<c-r>=system('base64 --decode',@")<cr><esc>
 " Quick exits
 nmap zz ZZ
-nmap Q :qa!<CR>
+" Open a small terminal
+if has('nvim')
+    nnoremap <leader>o :below 10sp term://$SHELL<cr>i
+endif
+"nmap zz ZZ
 " }}}
 
 " Settings {{{
 syntax on
 filetype plugin on
 filetype indent on
-helptags ~/.vim/doc
+helptags ~/.vim_runtime/lx-dotfiles/.vim/doc
 
 if has('gui')
     set gcr=n:blinkon0          " don't blink the cursor in normal mode
     set guioptions=aAegiM       " get rid of useless stuff in the gui
+    set clipboard=unnamed
     if has("gui_macvim")
         set guifont=Inconsolata:h18
-        set clipboard=unnamed
         noremap <Leader>zo :set guifont=Inconsolata:h4<CR>
         noremap <Leader>zi :set guifont=Inconsolata:h18<CR>
     else
@@ -76,16 +87,19 @@ if has('gui_running')
     set ballooneval
     set balloondelay=100
 endif
+
 if $DISPLAY != ""
     "set cursorline          " I like this, but damn is it slow
     set mouse=a             " Turn this off for console-only mode
     set selectmode+=mouse	" Allow the mouse to select
-    set ttymouse=xterm2
+    if !has('nvim')
+        set ttymouse=xterm2
+    endif
 endif
 set et                      " expand tabs
 set diffopt+=iwhite,vertical,filler   " ignore whitespace in diffs
 set hidden                  " allow hidden buffers
-set novb t_vb=              " no visual bell
+set noerrorbells vb t_vb=   " no bells
 set nonu                    " line numbers
 set viewdir=$HOME/.views    " keep view states out of my .vim
 set pumheight=15            " trim down the completion popup menu
@@ -111,14 +125,10 @@ set linebreak               " When soft-wrapping long lines, break at a word
 set comments-=s1:/*,mb:*,ex:*/
 set comments+=fb:*,b:\\item
 set formatlistpat=^\\s*\\([0-9]\\+\\\|[a-z]\\)[\\].:)}]\\s\\+
-if has("macunix")
-    set grepprg=grep\ -R\ --exclude=\"*.aux\"\ --exclude=\"tags\"\ --exclude=\"*scope.out\"\ --color=always\ -nIH\ $*
-else
-    set grepprg=bsdgrep\ -R\ --exclude=\"*.aux\"\ --exclude=\"tags\"\ --exclude=\"*scope.out\"\ --color=always\ -nIH\ $*
-endif
+set grepprg=grep\ -R\ --exclude=\"*.aux\"\ --exclude=\"tags\"\ --exclude=\"*scope.out\"\ --color=always\ -nIH\ $*
 set cpoptions=BFt
 set completeopt=menuone,longest
-set tags=tags;/             " use first tags file in a directory tree
+set tags=tags,./tags
 set nobackup                " ugh, stop making useless crap
 set nowritebackup           " same with overwriting
 set directory=/tmp          " litter up /tmp, not the CWD
@@ -130,6 +140,9 @@ set title
 set titlestring=%t%(\ %M%)%(\ (%{expand(\"%:p:h\")})%)%(\ %a%)
 set ttimeout
 set ttimeoutlen=100         " Make it so Esc enters Normal mode right away
+if has('nvim')
+    set ttimeoutlen=-1
+endif
 set helpheight=0            " no minimum helpheight
 set incsearch               " search incrementally
 set showmatch               " show the matching terminating bracket
@@ -141,11 +154,12 @@ set sidescroll=1            " soft wrap long lines
 set lazyredraw ttyfast      " go fast
 set errorfile=/tmp/errors.vim
 set cscopequickfix=s-,c-,d-,i-,t-,e-        " omfg so much nicer
-set foldlevelstart=2        " the default level of fold nesting on startup
-set cryptmethod=blowfish    " in case I ever decide to use vim -x
+set foldlevelstart=0        " the default level of fold nesting on startup
 set autoread                " Disable warning about file change to writable
 set conceallevel=0          " Don't hide things by default
-"set updatecount=100 updatetime=3600000		" saves power on notebooks
+if !has('nvim')
+    set cryptmethod=blowfish    " in case I ever decide to use vim -x
+endif
 
 "if exists('&autochdir')
 "    " Change directory to first open file
@@ -158,12 +172,21 @@ set t_Co=256                " use 256 colors
 colorscheme lx-256-dark
 " }}}
 
-" Plugins {{{
+" Plugins
 " 33ms startup penalty!
-source ~/.vim/ftplugin/man.vim
+source ~/.vim_runtime/lx-dotfiles/.vim/ftplugin/man.vim
+
+" Don't load plugins that have unmet dependencies
+if !executable('task')
+    let g:loaded_taskwarrior = 1
+endif
+
+if !has('python3')
+    let g:loaded_pct = 1
+endif
 
 " netrw {{{
-let g:netrw_liststyle=3
+let g:netrw_liststyle=0
 let g:netrw_browse_split=4
 let g:netrw_winsize=25
 let g:netrw_banner=0
@@ -173,10 +196,12 @@ let g:netrw_sort_sequence = '[\/]$,*,\%(' . join(map(split(&suffixes, ','), 'esc
 
 " quickfixsigns {{{
 let g:quickfixsigns_classes=['qfl', 'loc', 'marks', 'vcsdiff', 'breakpoints']
+let g:quickfixsigns_echo_balloon = 1
 " Disable display of the ' and . marks, so the gutter will be disabled until
 " manually set marks or quickfix/diff info is present.
 let g:quickfixsigns#marks#buffer = split('abcdefghijklmnopqrstuvwxyz', '\zs')
 let g:quickfixsign_use_dummy = 0
+" Aaaand we just found the limitations of manual fold markers
 let g:quickfixsigns#vcsdiff#highlight = {'DEL': 'QuickFixSignsDiffDeleteLx', 'ADD': 'QuickFixSignsDiffAddLx', 'CHANGE': 'QuickFixSignsDiffChangeLx'}   "{{{2}}}"
 " }}}
 
@@ -184,14 +209,44 @@ let g:quickfixsigns#vcsdiff#highlight = {'DEL': 'QuickFixSignsDiffDeleteLx', 'AD
 let g:buftabs_only_basename=1
 " }}}
 
+" buftabline {{{
+let g:buftabline_show=1
+let g:buftabline_separators=1
+" }}}
+
 " clever-f {{{
 let g:clever_f_mark_char_color="PreProc"
 let g:clever_f_smart_case=1
 " }}}
 
+" cscope {{{
+let g:cscope_interested_files = '\.java$\|\.php$\|\.h$\|\.hpp|\.cpp|\.c$|\.m$|\.swift$|\.py$'
+let g:cscope_split_threshold = 99999
+let g:cscope_auto_update = 0
+nnoremap <leader>fa :call CscopeFindInteractive(expand('<cword>'))<CR>
+nnoremap <leader>l :call ToggleLocationList()<CR>
+" s: Find this C symbol
+nnoremap  <leader>fs :call CscopeFind('s', expand('<cword>'))<CR>
+" g: Find this definition
+nnoremap  <leader>fg :call CscopeFind('g', expand('<cword>'))<CR>
+" d: Find functions called by this function
+nnoremap  <leader>fd :call CscopeFind('d', expand('<cword>'))<CR>
+" c: Find functions calling this function
+nnoremap  <leader>fc :call CscopeFind('c', expand('<cword>'))<CR>
+" t: Find this text string
+nnoremap  <leader>ft :call CscopeFind('t', expand('<cword>'))<CR>
+" e: Find this egrep pattern
+nnoremap  <leader>fe :call CscopeFind('e', expand('<cword>'))<CR>
+" f: Find this file
+nnoremap  <leader>ff :call CscopeFind('f', expand('<cword>'))<CR>
+" i: Find files #including this file
+nnoremap  <leader>fi :call CscopeFind('i', expand('<cword>'))<CR>
+" }}}
+
 " Indentlines {{{
 nmap \|\| :IndentLinesToggle<CR>
 let g:indentLine_faster = 1
+let g:indentLine_enabled = 0
 " }}}
 
 " Limelight {{{
@@ -205,8 +260,8 @@ let g:tex_flavor="latex"
 let g:tex_no_error = 1
 let g:tex_conceal= ""
 let g:tex_comment_nospell = 1
-"let g:LatexBox_latexmk_options = "--disable-write18 --file-line-error --interaction=batchmode -pdflatex=lualatex -latex=lualatex"
-let g:LatexBox_latexmk_options = "-xelatex --disable-write18 --file-line-error --interaction=batchmode"
+let g:LatexBox_latexmk_options = "--disable-write18 --file-line-error --interaction=batchmode -pdflatex=lualatex -latex=lualatex"
+"let g:LatexBox_latexmk_options = "-xelatex --disable-write18 --file-line-error --interaction=batchmode"
 " Work around the fact that cmdline macvim doesn't support server mode
 if has("gui_macvim")
     let g:LatexBox_latexmk_async = 1
@@ -224,6 +279,7 @@ else
 endif
 let g:LatexBox_split_side = "rightbelow"
 let g:LatexBox_quickfix = 0
+let g:LatexBox_fold_automatic = 0
 let g:LatexBox_show_warnings = 0
 let g:LatexBox_ignore_warnings = [
             \ 'Underfull',
@@ -260,12 +316,12 @@ augroup latex
     au BufWinEnter *.tex,*.sty silent loadview
     au FileType tex syntax spell toplevel
     au FileType tex set spell textwidth=78 smartindent
-    au FileType tex set formatoptions+=w foldlevelstart=6
+    au FileType tex set formatoptions+=w
     au FileType tex imap <buffer> [[ \begin{
     au FileType tex imap <buffer> ]] <Plug>LatexCloseCurEnv
     au FileType tex imap <S-Enter> \pagebreak
-    au FileType tex nmap tt i{\tt <Esc>wEa}<Esc>
-    au FileType tex source ~/.vim/ftplugin/quotes.vim
+    au FileType tex nmap tt i\texttt{<Esc>wEa}<Esc>
+    au FileType tex source ~/.vim_runtime/lx-dotfiles/.vim/ftplugin/quotes.vim
 augroup end
 " }}}
 
@@ -311,25 +367,16 @@ let g:vimchat_pync_enabled = 1
 "map g<Tab> gt
 " }}}
 
-" CtrlP {{{
-let g:ctrlp_cmd = 'CtrlPMixed'
-let g:ctrlp_map = '<C-e>'
-let g:ctrlp_by_filename = 1
-let g:ctrlp_working_path_mode = 0
-let g:ctrlp_max_height = 30
-let g:ctrlp_clear_cache_on_exit = 0
-let g:ctrlp_extensions = ['buffertag']
-map <Leader>e :CtrlP<CR>
-map <Leader>m :CtrlPMRU<CR>
-map <Leader>t :CtrlPTag<CR>
-map <Leader>g :CtrlPBufTagAll<CR>
-map <Leader>b :CtrlPBuffer<CR>
-" CtrlP tjump
-nnoremap <c-]> :CtrlPtjump<cr>
-vnoremap <c-]> :CtrlPtjumpVisual<cr>
-let g:ctrlp_tjump_shortener = ['/\(Users|home\)/lx', '~']
-let g:ctrlp_tjump_only_silent = 1
+" FZF {{{
+set rtp+=~/.fzf
+set rtp+=/usr/local/opt/fzf
+nmap <C-e> :Files<CR>
+nmap <leader>m :History<CR>
+nmap <leader>e :Files<CR>
+nmap <Leader>t :Tags<CR>
+nmap <Leader>b :BTags<CR>
 " }}}
+
 
 " statline {{{
 let g:statline_fugitive=1
@@ -341,7 +388,7 @@ let g:statline_filename_relative=1
 " clang {{{
 let g:clang_complete_enable = 1
 let g:clang_library_path='/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib'
-let g:clang_user_options='-fblocks -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator7.0.sdk -D__IPHONE_OS_VERSION_MIN_REQUIRED=40300'
+let g:clang_user_options='-fblocks -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk -D__IPHONE_OS_VERSION_MIN_REQUIRED=40300'
 let g:clang_complete_copen = 1
 let g:clang_snippets = 1
 let g:clang_use_library = 1
@@ -424,12 +471,10 @@ let g:tagbar_type_scala = {
 \ }
 " }}}
 
-" }}}
-
 " augroups {{{
 augroup cjava
     au!
-    au BufNewFile *.c r ~/.vim/templates/template.c
+    au BufNewFile *.c r ~/.vim_runtime/lx-dotfiles/.vim/templates/template.c
     au BufWinEnter *.[mCchly] set nospell number comments+=s1:/*,mb:*,ex:*/
     au BufWinEnter,BufNewFile *.m,*.xm,*.xmi setfiletype objc
     au BufWinEnter,BufNewFile *.m,*.xm,*.xmi let c_no_curly_error = 1
@@ -444,7 +489,7 @@ augroup html
     au!
     au FileType html set spell wrapmargin=5 wrapscan number
     au FileType html set wrapscan&
-    au BufNewFile *.html r ~/.vim/templates/template.html
+    au BufNewFile *.html r ~/.vim_runtime/lx-dotfiles/.vim/templates/template.html
     au BufWinLeave *.htm* mkview
     au BufWinEnter *.htm* silent loadview
 augroup end
@@ -453,6 +498,12 @@ augroup python
     au FileType python set smartindent smarttab nospell number
     au BufWinLeave *.py mkview
     au BufWinEnter *.py silent loadview
+augroup end
+
+augroup php
+    au FileType php set smartindent smarttab nospell number
+    au BufWinLeave *.php mkview
+    au BufWinEnter *.php silent loadview
 augroup end
 
 augroup markdown
@@ -486,10 +537,11 @@ augroup msdocs
 augroup end
 
 augroup misc
-    au FileType netrw unmap <buffer> --
+    au FileType netrw silent! unmap <buffer> --
     au BufWinEnter *.applescript set filetype=applescript
     au BufWinEnter *.nmap, set syntax=nmap
     au BufWinEnter *.scala, set filetype=scala
+    au BufWinEnter *.proto, set filetype=proto
     au BufWinEnter *.dtrace, set filetype=D
     au BufWinEnter *.less, set filetype=css
     au BufWinEnter *.fugitiveblame,*.diff, set nospell number
@@ -515,6 +567,7 @@ augroup misc
     " Disable the 'warning, editing a read-only file' thing that
     " hangs the UI
     au FileChangedRO * se noreadonly
+    au GUIEnter * set visualbell t_vb=
 augroup end
 
 augroup syntax
@@ -529,18 +582,46 @@ augroup end
 
 " Custom functions {{{
 " Quickfix toggle
-let g:quickfix_is_open = 0
 
-function! QuickfixToggle()
-    if g:quickfix_is_open
-        cclose
-        let g:quickfix_is_open = 0
-        execute g:quickfix_return_to_window . "wincmd w"
-    else
-        let g:quickfix_return_to_window = winnr()
-        bot copen
-        let g:quickfix_is_open = 1
+function! GetBufferList()
+  redir =>buflist
+  silent! ls!
+  redir END
+  return buflist
+endfunction
+
+function! ToggleList(bufname, pfx)
+  let buflist = GetBufferList()
+  for bufnum in map(filter(split(buflist, '\n'), 'v:val =~ "'.a:bufname.'"'), 'str2nr(matchstr(v:val, "\\d\\+"))')
+    if bufwinnr(bufnum) != -1
+      exec(a:pfx.'close')
+      return
     endif
+  endfor
+  if a:pfx == 'l' && len(getloclist(0)) == 0
+      echohl ErrorMsg
+      echo "Location List is Empty."
+      return
+  endif
+  let winnr = winnr()
+  exec(a:pfx.'open')
+  if winnr() != winnr
+    wincmd p
+  endif
+endfunction
+
+"nmap <silent> <leader>l :call ToggleList("Location List", 'l')<CR>
+"nmap <silent> <leader>e :call ToggleList("Quickfix List", 'c')<CR>
+
+command -bang -nargs=? QFix call QFixToggle(<bang>0)
+function! QFixToggle(forced)
+  if exists("g:qfix_win") && a:forced == 0
+    cclose
+    unlet g:qfix_win
+  else
+    copen 10
+    let g:qfix_win = bufnr("$")
+  endif
 endfunction
 
 " Toggle Vexplore
@@ -551,7 +632,7 @@ function! ToggleVExplorer()
           let cur_win_nr = winnr()
           exec expl_win_num . 'wincmd w'
           close
-          exec cur_win_nr . 'wincmd w'
+          "exec cur_win_nr . 'wincmd w'
           unlet t:expl_buf_num
       else
           unlet t:expl_buf_num
@@ -622,15 +703,24 @@ function ToggleHex()
 endfunction
 
 " I use this to highlight the match from grep, but keep quickfix syntax
-" highlighting intact. This is for BSD grep.
+" highlighting intact. Detects Linux due to the different escape sequences of
+" GNU grep.
 command -bar GrepColors call GrepColors()
 function GrepColors()
     set conceallevel=3
     set cocu=nv
-    syn region ansiRed start="\e\[01;31m\e\[K"me=e-2 end="\e\[m"me=e-3 contains=ansiConceal
-    syn match ansiConceal contained conceal	"\e\[\(\d*;\)*\d*m\e\[K"
+
+    if system('uname')=~'Linux'
+        syn region ansiRed start="\e\[01;31m"me=e-2 end="\e\[m"me=e-3 contains=ansiConceal
+        syn match ansiConceal contained conceal	"\e\[\(\d*;\)*\d*m"
+        syn match ansiStop		conceal "\e\[m"
+    else
+        syn region ansiRed start="\e\[01;31m\e\[K"me=e-2 end="\e\[m"me=e-3 contains=ansiConceal
+        syn match ansiConceal contained conceal	"\e\[\(\d*;\)*\d*m\e\[K"
+        syn match ansiStop		conceal "\e\[m\e\[K"
+    endif
+
     hi ansiRed    ctermfg=197   guifg=#FF005F  cterm=none         gui=none
-    syn match ansiStop		conceal "\e\[m\e\[K"
     hi! link ansiStop NONE
 endfunction
 
@@ -647,8 +737,18 @@ endfunction
 
 command! -nargs=1 Graudit call Graudit(<f-args>)
 function! Graudit(db)
-    call system("$HOME/Tools/graudit/graudit -x 'cscope.*' -c0 -d " . a:db . " . > /tmp/graudit.out")
+    call system("$HOME/Tools/graudit/graudit -x 'cscope.*' -c0 -d " . a:db . " . | awk 'length($0) < 200' > /tmp/graudit.out")
     copen
     cf /tmp/graudit.out
 endfunction
 " }}}
+
+let $ADMIN_SCRIPTS = "/scripts"
+
+if filereadable($ADMIN_SCRIPTS . "/master.vimrc")
+    source $ADMIN_SCRIPTS/master.vimrc
+endif
+
+if filereadable($ADMIN_SCRIPTS . "/vim/biggrep.vim")
+    source $ADMIN_SCRIPTS/vim/biggrep.vim
+endif

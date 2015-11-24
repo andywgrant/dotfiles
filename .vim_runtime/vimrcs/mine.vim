@@ -1,6 +1,7 @@
 set mouse=a             " Turn this off for console-only mode
-set selectmode-=mouse	  " Allow the mouse to enter visual mode
+set selectmode-=mouse	" Allow the mouse to enter visual mode
 set cursorline          " Highlight current line, but slow
+set foldlevelstart=20        " I don't like folding when I open a document
 
 " Mode-dependent cursor (Mintty)
 if has('win32') || has('win64')
@@ -57,36 +58,36 @@ endfunction
 
 " ----- ack on current identifier in top level directory -----
 if 1
-    function! TAckRun(r,m)
-        if (a:m == "normal")
-            let curword = expand("<cword>")
-        elseif (a:m == "visual")
-            let curword = s:get_visual_selection()
-        endif
-        if (strlen(curword) == 0)
-            return
-        endif
-        let oreport = &report
-        let &report = 99999
-        echo "Running ack " . a:r . curword
-        new
+    " function! TAckRun(r,m)
+    "     if (a:m == "normal")
+    "         let curword = expand("<cword>")
+    "     elseif (a:m == "visual")
+    "         let curword = s:get_visual_selection()
+    "     endif
+    "     if (strlen(curword) == 0)
+    "         return
+    "     endif
+    "     let oreport = &report
+    "     let &report = 99999
+    "     echo "Running ack " . a:r . curword
+    "     new
 
-        let s = 'perl \cygwin\usr\local\bin\ack --ignore-file=is:tags ' . a:r . curword
-        execute "normal i" . s . "\<Esc>"
-        execute '1read !' . s . ''
-        2
+    "     let s = 'perl \cygwin\usr\local\bin\ack --ignore-file=is:tags ' . a:r . curword
+    "     execute "normal i" . s . "\<Esc>"
+    "     execute '1read !' . s . ''
+    "     2
 
-        setlocal nomodified
-        setlocal bufhidden=delete
-        let &report = oreport
-        setlocal nospell
-    endfunction
+    "     setlocal nomodified
+    "     setlocal bufhidden=delete
+    "     let &report = oreport
+    "     setlocal nospell
+    " endfunction
 
     " Vim-Ack
 if has("mac") || has("macunix")
-    let g:ackprg="/usr/local/bin/ack --ignore-file=is:tags -H --nocolor --nogroup --column"
+    let g:ackprg="ag --nocolor --nogroup --column"
 else
-    let g:ackprg="perl \\cygwin\\usr\\local\\bin\\ack --ignore-file=is:tags -H --nocolor --nogroup --column"
+    let g:ackprg="ag --nocolor --nogroup --column"
 endif
 
     function! TAckRun(r,m)
@@ -266,7 +267,7 @@ function! TogglePTag()
     endif
 endfunction
 
-" Don't open MacVim in fullscreen mode
+" Don't open MacVim in fullscreen mode (override of amix setting)
 if has("gui_macvim")
     set fuoptions=
 endif
@@ -294,3 +295,11 @@ let g:tagbar_type_tex = {
     \ ],
     \ 'sort'    : 0,
 \ }
+
+" Speed up CtrlP
+let g:ctrlp_user_command = "find %s -type f | egrep -v '/\.(git|hg|svn)|solr|tmp/' | egrep -v '\.(png|exe|jpg|gif|jar|class|swp|swo|log|gitkep|keepme|so|o)$'"
+" No limit CtrlP
+let g:ctrlp_max_files=0
+
+augroup latex
+augroup end

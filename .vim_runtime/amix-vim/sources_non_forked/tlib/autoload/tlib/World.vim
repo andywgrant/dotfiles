@@ -1,7 +1,7 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    1393
+" @Revision:    1424
 
 " :filedoc:
 " A prototype used by |tlib#input#List|.
@@ -379,6 +379,14 @@ endf
 
 
 " :nodoc:
+function! s:prototype.FormatBaseFromData() abort dict "{{{3
+    if has_key(self, 'format_data') && has_key(self, 'data')
+        let self.base = map(copy(self.data), 'call(self.format_data, [v:val], self)')
+    endif    
+endf
+
+
+" :nodoc:
 function! s:prototype.FormatArgs(format_string, arg) dict "{{{3
     let nargs = len(substitute(a:format_string, '%%\|[^%]', '', 'g'))
     return [a:format_string] + repeat([string(a:arg)], nargs)
@@ -603,11 +611,13 @@ endf
 " :nodoc:
 function! s:prototype.IsValidFilter() dict "{{{3
     let last = self.FilterRxPrefix() .'\('. self.filter[0][0] .'\)'
+    Tlibtrace 'tlib', last
     " TLogVAR last
     try
         let a = match("", last)
         return 1
     catch
+        Tlibtrace 'tlib', v:exception
         return 0
     endtry
 endf
@@ -687,8 +697,9 @@ endf
 " filter is either a string or a list of list of strings.
 function! s:prototype.SetInitialFilter(filter) dict "{{{3
     " let self.initial_filter = [[''], [a:filter]]
+    Tlibtrace 'tlib', a:filter
     if type(a:filter) == 3
-        let self.initial_filter = copy(a:filter)
+        let self.initial_filter = deepcopy(a:filter)
     else
         let self.initial_filter = [[a:filter]]
     endif
@@ -815,7 +826,18 @@ function! s:prototype.UseInputListScratch() dict "{{{3
     endif
     if !exists('w:tlib_list_init')
         " TLogVAR scratch
-        syntax match InputlListIndex /^\d\+:/
+        if has_key(self, 'index_next_syntax')
+            if type(self.index_next_syntax) == 1
+                exec 'syntax match InputlListIndex /^\d\+:\s/ nextgroup='. self.index_next_syntax
+            elseif type(self.index_next_syntax) == 4
+                for [n, nsyn] in items(self.index_next_syntax)
+                    let fn = printf('%0'. world.index_width .'d', n)
+                    exec 'syntax match InputlListIndex /^'. fn .':\s/ nextgroup='. nsyn
+                endfor
+            endif
+        else
+            syntax match InputlListIndex /^\d\+:\s/
+        endif
         syntax match InputlListCursor /^\d\+\* .*$/ contains=InputlListIndex
         syntax match InputlListSelected /^\d\+# .*$/ contains=InputlListIndex
         hi def link InputlListIndex Constant
@@ -838,6 +860,7 @@ endf
 function! s:prototype.Reset(...) dict "{{{3
     TVarArg ['initial', 0]
     " TLogVAR initial
+    Tlibtrace 'tlib', initial, self.initial_filter
     let self.state     = 'display'
     let self.offset    = 1
     let self.filter    = deepcopy(self.initial_filter)
@@ -849,6 +872,7 @@ function! s:prototype.Reset(...) dict "{{{3
     call self.UseInputListScratch()
     call self.ResetSelected()
     call self.Retrieve(!initial)
+    call self.FormatBaseFromData()
     return self
 endf
 
@@ -973,6 +997,7 @@ function! s:prototype.DisplayHelp() dict "{{{3
     call self.PushHelp('Mouse', 'L: Pick item, R: Show menu')
     call self.PushHelp('<M-Number>',  'Select an item')
     call self.PushHelp('<BS>, <C-BS>', 'Reduce filter')
+    call self.PushHelp('<Tab>', 'Complete word')
     call self.PushHelp('<S-Esc>, <F10>', 'Enter command')
 
     if self.key_mode == 'default'
@@ -1119,10 +1144,11 @@ function! s:prototype.DisplayList(...) dict "{{{3
         if self.state =~ '\<display\>'
             call self.Resize(self.GetResize(ll), eval(get(self, 'resize_vertical', 0)))
             call tlib#normal#WithRegister('gg"tdG', 't')
+            let lines = copy(list)
+            let lines = map(lines, 'substitute(v:val, ''[[:cntrl:][:space:]]'', " ", "g")')
             let w = winwidth(0) - &fdc
             " let w = winwidth(0) - &fdc - 1
-            let lines = copy(list)
-            let lines = map(lines, 'printf("%-'. w .'.'. w .'s", substitute(v:val, ''[[:cntrl:][:space:]]'', " ", "g"))')
+            let lines = map(lines, 'printf("%-'. w .'.'. w .'s", v:val)')
             " TLogVAR lines
             call append(0, lines)
             call tlib#normal#WithRegister('G"tddgg', 't')
@@ -1209,10 +1235,11 @@ endf
 
 " :nodoc:
 function! s:prototype.Query() dict "{{{3
+    let flt = self.DisplayFilter()
     if g:tlib_inputlist_shortmessage
-        let query = 'Filter: '. self.DisplayFilter()
+        let query = 'Filter: '. flt
     else
-        let query = self.query .' (filter: '. self.DisplayFilter() .'; press <F1> for help)'
+        let query = self.query .' (filter: '. flt .'; press <F1> for help)'
     endif
     return query
 endf

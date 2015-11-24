@@ -75,8 +75,8 @@ if g:LatexBox_fold_automatic == 1
 	"
 	augroup FastFold
 		autocmd!
-		autocmd InsertEnter *.tex setlocal foldmethod=manual
-		autocmd InsertLeave *.tex setlocal foldmethod=expr
+		autocmd InsertEnter *.tex if !&diff | setlocal foldmethod=manual | endif
+		autocmd InsertLeave *.tex if !&diff | setlocal foldmethod=expr | endif
 	augroup end
 else
 	setl foldmethod=manual
@@ -283,6 +283,28 @@ function! s:CaptionFrame(line)
     endif
 endfunction
 
+function! s:LabelNCCVuln()
+    let i = v:foldend
+    while i >= v:foldstart
+        if getline(i) =~ '^\s*\\vrisk'
+            return matchstr(getline(i), '^\s*\\vrisk{\zs.*\ze}')
+        end
+        let i -= 1
+    endwhile
+    return ""
+endfunction
+
+function! s:CaptionNCCVuln()
+    let i = v:foldend
+    while i >= v:foldstart
+        if getline(i) =~ '^\s*\\vtitle'
+            return matchstr(getline(i), '^\s*\\vtitle{\zs.\+\ze}')
+        end
+        let i -= 1
+    endwhile
+    return ""
+endfunction
+
 function! LatexBox_FoldText_title()
     let line = getline(v:foldstart)
     let title = 'Not defined'
@@ -330,6 +352,9 @@ function! LatexBox_FoldText_title()
         elseif env == 'table'
             let label = s:LabelEnv()
             let caption = s:CaptionTable()
+        elseif env == 'nccvuln'
+            let label = s:LabelNCCVuln()
+            let caption = s:CaptionNCCVuln()
         else
             let label = s:LabelEnv()
             let caption = s:CaptionEnv()
@@ -348,6 +373,8 @@ function! LatexBox_FoldText_title()
                         \ substitute(caption, '}\s*$', '',''))
         elseif caption == ''
             let title = printf('%-12s%56s', env, '(' . label . ')')
+        elseif env == 'nccvuln'
+            let title = printf('%s %s', '{' . label . '}', caption)
         else
             let title = printf('%-12s%-30s %21s', env . ':',
                         \ strpart(substitute(caption, '}\s*$', '',''),0,34),
@@ -361,7 +388,7 @@ endfunction
 " {{{1 LatexBox_FoldText
 function! LatexBox_FoldText()
     let nlines = v:foldend - v:foldstart + 1
-    let title = strpart(LatexBox_FoldText_title(), 0, 68)
+    let title = LatexBox_FoldText_title()
     let level = ''
 
     " Fold level

@@ -14,6 +14,9 @@ defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 # Stop doing the stupid desktop reordering thing
 defaults write com.apple.dock mru-spaces -bool false
 
+# Disable the desktop, one of the most useless UI paradigms every devised
+defaults write com.apple.finder CreateDesktop -bool false
+
 # ANIMATE FASTER
 defaults write com.apple.dock expose-animation-duration -float 0.15
 
@@ -95,7 +98,7 @@ defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
 defaults write -g AppleAquaColorVariant -int 6;
 
 # Turn on firewall, such as it is
-defaults write /Library/Preferences/com.apple.sharing.firewall state -bool YES
+sudo defaults write /Library/Preferences/com.apple.sharing.firewall state -bool YES
 
 # Ask for password after lock
 defaults write com.apple.screensaver askForPassword -int 1
@@ -128,7 +131,8 @@ sudo chflags nohidden /tmp
 sudo chflags nohidden /usr
 
 # Link to the airport command
-sudo ln -s /System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport /usr/sbin/airport
+sudo mkdir -p /usr/local/bin
+sudo ln -s /System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport /usr/local/bin/airport
 
 # The old Solaris admin in me still cringes when I see this command
 killall Dock
@@ -143,11 +147,12 @@ killall Finder
 # every time you close the machine to prevent that. If you want to do that, use
 # this:
 #
-# sudo pmset -a destroyfvkeyonstandby 1 hibernatemode 25
+# sudo pmset -a destroyfvkeyonstandby 1 hibernatemode 25 autopoweroff 0
 #
 # You can also use autopoweroff and reduce the autopoweroffdelay if you want
 # to sleep -> hibernate after a period of time.
 #
+# Or you can do this to save space.
 # pmset -a hibernatemode 0
 # pmset -a autopoweroff 0
 # rm /private/var/vm/sleepimage
@@ -158,9 +163,7 @@ killall Finder
 
 read -p "Preparing to make symlinks"
 
-mkdir ~/bin && cd ~/bin
-
-for file in .zshrc .zshenv .vimrc .vim .ctags .editrc .inputrc .nexrc .tmux.conf bin
+for file in .zshrc .zshenv .zsh .vimrc .vim .ctags .editrc .inputrc .nexrc .tmux.conf bin
 do
     ln -s ~/git/dotfiles/$file ~/$file
 done
@@ -172,7 +175,7 @@ cd ~/git && \
     git clone git://repo.or.cz/dvtm.git && \
     cd dvtm && \
     cp ~/git/dotfiles/dvtm-config.h ./config.h && \
-    sed -i bak 's/ncursesw/ncurses/g' config.mk
+    cp ~/git/dotfiles/dvtm-config.mk ./config.mk
     sed -i bak 's/strip -s/strip/g' Makefile
     sudo make install clean
 
@@ -181,8 +184,25 @@ cd ~/git && \
 sudo xcodebuild -license
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 brew doctor
-brew install task macvim tmux w3m apg bvi cscope daemontools djbdns runit mutt nvi nmap par weechat wireshark youtube-dl bbe zsh
+brew install task tmux w3m apg bvi cscope daemontools djbdns runit mutt nvi nmap par python3 weechat wireshark youtube-dl bbe zsh w3m vdirsyncer khal ag fzf mobile-shell tree
+# Note that macvim requires full xcode
+brew install macvim --with-python3
 brew install ctags --HEAD
 brew install profanity --with-terminal-notifier
 brew linkapps
+pip3 install peewee
+
+# Install casks
+read -p "Preparing to install casks"
+brew install caskroom/cask/brew-cask
+brew tap caskroom/fonts
+brew cask install font-inconsolata
+brew cask install karabiner
+brew cask install iterm2
+brew cask install adium
+brew cask install google-chrome
+brew cask install xquartz
+brew cask install spectacle
+# Needs XQuartz
+brew install vim --override-system-vi --with-client-server --with-lua --with-python3
 task

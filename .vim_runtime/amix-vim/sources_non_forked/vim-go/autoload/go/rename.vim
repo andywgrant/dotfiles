@@ -2,11 +2,12 @@ if !exists("g:go_gorename_bin")
     let g:go_gorename_bin = "gorename"
 endif
 
-function! go#rename#Rename(...)
+function! go#rename#Rename(bang, ...)
     let to = ""
     if a:0 == 0
-        let ask = printf("vim-go: rename '%s' to: ",  expand("<cword>"))
-        let to = input(ask)
+        let from = expand("<cword>")
+        let ask = printf("vim-go: rename '%s' to: ", from)
+        let to = input(ask, from)
         redraw
     else
         let to = a:1
@@ -14,14 +15,14 @@ function! go#rename#Rename(...)
 
 
     "return with a warning if the bin doesn't exist
-    let bin_path = go#tool#BinPath(g:go_gorename_bin) 
+    let bin_path = go#path#CheckBinPath(g:go_gorename_bin) 
     if empty(bin_path) 
         return 
     endif
 
-    let fname = expand('%:p:t')
+    let fname = expand('%:p')
     let pos = s:getpos(line('.'), col('.'))
-    let cmd = printf('%s -offset %s:#%d -to %s',  bin_path, shellescape(fname), pos, to)
+    let cmd = printf('%s -offset %s -to %s', shellescape(bin_path), shellescape(printf('%s:#%d', fname, pos)), shellescape(to))
 
     let out = go#tool#ExecuteInDir(cmd)
 
@@ -30,8 +31,16 @@ function! go#rename#Rename(...)
     let clean = split(out, '\n')
 
     if v:shell_error
-        redraw | echon "vim-go: " | echohl Statement | echon clean[0] | echohl None
+        call go#tool#ShowErrors(out)
+        let errors = getqflist()
+        call go#util#Cwindow(len(errors))
+        if !empty(errors) && !a:bang
+            cc 1 "jump to first error if there is any
+        endif
+        return
     else
+        call setqflist([])
+        call go#util#Cwindow()
         redraw | echon "vim-go: " | echohl Function | echon clean[0] | echohl None
     endif
 

@@ -1,7 +1,7 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    1317
+" @Revision:    1353
 
 
 " :filedoc:
@@ -113,12 +113,17 @@ TLet g:tlib#input#numeric_chars = {
 
 
 " :nodefault:
-" The default key bindings for single-item-select list views. If you 
-" want to use <c-j>, <c-k> to move the cursor up and down, add these two 
-" lines to after/plugin/02tlib.vim: >
+" The default key bindings for single-item-select list views.
 "
-"   let g:tlib#input#keyagents_InputList_s[10] = 'tlib#agent#Down'  " <c-j>
-"   let g:tlib#input#keyagents_InputList_s[11] = 'tlib#agent#Up'    " <c-k>
+" This variable is best customized via the variable 
+" g:tlib_extend_keyagents_InputList_s. If you want to use <c-j>, <c-k> 
+" to move the cursor up and down, add these two lines to your |vimrc| 
+" file:
+"
+"   let g:tlib_extend_keyagents_InputList_s = {
+"       \ 10: 'tlib#agent#Down',
+"       \ 11: 'tlib#agent#Up'
+"       \ }
 TLet g:tlib#input#keyagents_InputList_s = {
             \ "\<PageUp>":   'tlib#agent#PageUp',
             \ "\<PageDown>": 'tlib#agent#PageDown',
@@ -126,6 +131,7 @@ TLet g:tlib#input#keyagents_InputList_s = {
             \ "\<End>":      'tlib#agent#End',
             \ "\<Up>":       'tlib#agent#Up',
             \ "\<Down>":     'tlib#agent#Down',
+            \ 9:             'tlib#agent#Complete',
             \ "\<c-Up>":     'tlib#agent#UpN',
             \ "\<c-Down>":   'tlib#agent#DownN',
             \ "\<Left>":     'tlib#agent#ShiftLeft',
@@ -154,6 +160,10 @@ TLet g:tlib#input#keyagents_InputList_s = {
             \ }
             " \ 63:            'tlib#agent#Help',
 
+if exists('g:tlib_extend_keyagents_InputList_s')
+    let g:tlib#input#keyagents_InputList_s = extend(g:tlib#input#keyagents_InputList_s, g:tlib_extend_keyagents_InputList_s)
+endif
+
 
 " :nodefault:
 TLet g:tlib#input#keyagents_InputList_m = {
@@ -165,6 +175,11 @@ TLet g:tlib#input#keyagents_InputList_m = {
             \ "\<F9>":     'tlib#agent#ToggleRestrictView',
             \ }
 " "\<c-space>": 'tlib#agent#Select'
+
+if exists('g:tlib_extend_keyagents_InputList_m')
+    let g:tlib#input#keyagents_InputList_m = extend(g:tlib#input#keyagents_InputList_m, g:tlib_extend_keyagents_InputList_m)
+endif
+
 
 
 " :nodefault:
@@ -182,6 +197,11 @@ TLet g:tlib#input#handlers_EditList = [
             \      'Cancel editing by pressing <c-w>c'
             \ ]},
             \ ]
+
+
+" A dictionary KEY => {'agent': AGENT, 'key_name': KEY_NAME} to 
+" customize keyboard shortcuts in the list view.
+TLet g:tlib#input#user_shortcuts = {}
 
 
 " If true, define a popup menu for |tlib#input#List()| and related 
@@ -232,6 +252,9 @@ TLet g:tlib#input#filename_max_width = '&co / 2'
 "
 " Several pattern matching styles are supported. See 
 " |g:tlib#input#filter_mode|.
+"
+" Users can type <Tab> to complete the current filter with the longest 
+" match.
 "
 " EXAMPLES: >
 "   echo tlib#input#List('s', 'Select one item', [100,200,300])
@@ -381,10 +404,13 @@ function! tlib#input#ListW(world, ...) "{{{3
 
                 " TLogVAR world.filter
                 " TLogVAR world.sticky
-                if world.state =~ '\<pick\>'
+                if world.state =~ '\<picked\>'
+                    " TLogVAR world.rv
+                    throw 'picked'
+                elseif world.state =~ '\<pick\>'
                     let world.rv = world.CurrentItem()
                     " TLogVAR world.rv
-                    throw 'pick'
+                    throw 'picked'
                 elseif world.state =~ 'display'
                     if world.state =~ '^display'
                         " let time03 = str2float(reltimestr(reltime()))  " DBG
@@ -496,7 +522,8 @@ function! tlib#input#ListW(world, ...) "{{{3
                     "     let world.offset = world.prefidx
                     " endif
                     " TLogDBG 8
-                    if world.initial_display || !tlib#char#IsAvailable()
+                    " TLogVAR world.initial_display, !tlib#char#IsAvailable()
+                    if world.state =~ '\<update\>' || world.initial_display || !tlib#char#IsAvailable()
                         " TLogDBG len(dlist)
                         call world.DisplayList(world.Query(), dlist)
                         call world.FollowCursor()
@@ -679,6 +706,11 @@ function! tlib#input#ListW(world, ...) "{{{3
                     " let world.state = 'continue'
                 endif
 
+            catch /^picked$/
+                call world.ClearAllMarks()
+                call world.MarkCurrent(world.prefidx)
+                let world.state = 'exit'
+
             catch /^pick$/
                 call world.ClearAllMarks()
                 call world.MarkCurrent(world.prefidx)
@@ -686,7 +718,7 @@ function! tlib#input#ListW(world, ...) "{{{3
                 " TLogDBG 'Pick item #'. world.prefidx
 
             finally
-                " TLogDBG 'finally 1'
+                " TLogDBG 'finally 1', world.state
                 if world.state =~ '\<suspend\>'
                     " if !world.allow_suspend
                     "     echom "Cannot be suspended"
@@ -695,10 +727,10 @@ function! tlib#input#ListW(world, ...) "{{{3
                 elseif !empty(world.list) && !empty(world.base)
                     " TLogVAR world.list
                     if empty(world.state)
-                        " TLogVAR world.state
                         let world.rv = world.CurrentItem()
+                        " TLogVAR world.state, world.rv
                     endif
-                    " TLog "postprocess"
+                    " TLogVAR "postprocess"
                     for handler in world.post_handlers
                         let state = get(handler, 'postprocess', '')
                         " TLogVAR handler
@@ -746,7 +778,6 @@ function! tlib#input#ListW(world, ...) "{{{3
                 return ''
             endif
         elseif !empty(world.return_agent)
-            " TLog "return_agent"
             " TLogDBG 'return agent'
             " TLogVAR world.return_agent
             call world.CloseScratch()
@@ -917,7 +948,7 @@ function! s:ExtendKeyMap(world, key_mode, key_handlers) "{{{3
 endf
 
 
-function s:PopupmenuExists()
+function! s:PopupmenuExists()
     if !g:tlib#input#use_popup
                 \ || exists(':popup') != 2
                 \ || !(has('gui_win32') || has('gui_gtk') || has('gui_gtk2'))

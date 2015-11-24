@@ -4,7 +4,7 @@ cat <<EOF >> /etc/rc.conf
 syslogd_flags="-ss"
 virecover_enable="NO"
 ntpd_sync_on_start="YES"
-ntpd_enable=YES"
+ntpd_enable="YES"
 ntpd_sync_on_start="YES"
 clear_tmp_enable="YES"
 sendmail_enable="NO"
@@ -53,7 +53,7 @@ net.inet.tcp.blackhole=2
 net.inet.udp.blackhole=1
 security.jail.allow_raw_sockets=1
 kern.ipc.shm_allow_removed=1
+net.inet.ip.random_id=1
 EOF
 
 sed -i -e "s/rw/rw,noatime/g" /etc/fstab
-
