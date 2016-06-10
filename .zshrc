@@ -65,7 +65,7 @@ zstyle ':completion:*:*:task:*:descriptions' format '%U%B%d%b%u'
 zstyle ':completion:*:*:task:*' group-name ''
 
 alias t=task
-fpath=($fpath /usr/share/doc/task/scripts/zsh /usr/local/share/zsh/site-functions/)
+fpath=($fpath /usr/share/doc/task/scripts/zsh /usr/local/share/zsh/site-functions)
 
 # be verbose, i.e. show descriptions
 zstyle ':completion:*' verbose yes
@@ -229,4 +229,53 @@ case $TERM in
         ;;
 esac
 
-path=($HOME/bin $path)
+export PATH="$HOME/bin:/usr/local/bin:$PATH"
+# path=(/usr/local/bin $path)
+# path=($HOME/bin $path)
+
+# Locks down a thumb drive so that Mac OS X will not write any metadata to it.
+macosx_lockdown_drive() {
+    srm -r -s -v .Trashes
+    touch .Trashes
+    srm -r -s -v .fseventsd
+    touch .fseventsd
+    srm -r -s -v .Spotlight-V100
+    touch .Spotlight-V100
+    touch .metadata_never_index
+}
+
+export ANDROID_HOME=/usr/local/opt/android-sdk
+
+fpath=(/usr/local/share/zsh-completions $fpath)
+
+PERL_MB_OPT="--install_base \"/Users/agrant/perl5\""; export PERL_MB_OPT;
+PERL_MM_OPT="INSTALL_BASE=/Users/agrant/perl5"; export PERL_MM_OPT;
+
+export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+
+# taskwarrior GTD - http://taskwarrior.org/news/news.20150627.html
+alias in='task add +in'
+tickle () {
+    deadline=$1
+    shift
+    in +tickle wait:$deadline $@
+}
+alias tick=tickle
+alias think='tickle +1d'
+alias rnd='task add +rnd'
+webpage_title (){
+    wget -qO- "$*" | hxselect -s '\n' -c  'title' 2>/dev/null
+}
+
+read_and_review (){
+    link="$1"
+    title=$(webpage_title $link)
+    echo $title
+    descr="\"Read and review: $title\""
+    id=$(task add +next +rnr "$descr" | sed -n 's/Created task \(.*\)./\1/p')
+    task "$id" annotate "$link"
+}
+
+alias rnr=read_and_review
+
+test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
