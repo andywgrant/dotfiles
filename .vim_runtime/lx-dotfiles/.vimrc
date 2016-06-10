@@ -1,3 +1,7 @@
+" Abbreviations {{{
+abbr guys folks
+" }}}
+
 " Keymappings {{{
 " Make space clear highlighted searches
 nmap <silent> <space> :noh<CR>
@@ -57,12 +61,17 @@ nmap <Leader>fw :StripWhitespace<CR>
 vnoremap <leader>64 c<c-r>=system('base64',@")<cr><esc>
 vnoremap <leader>64d c<c-r>=system('base64 --decode',@")<cr><esc>
 " Quick exits
-nmap zz ZZ
+"nmap zz ZZ
+if bufwinnr(1)
+  map <S-right> <C-W><
+  map <S-left> <C-W>>
+endif
+nnoremap <silent> <Leader>+ :exe "vertical resize " . (winheight(0) * 3/2)<CR>
+nnoremap <silent> <Leader>- :exe "vertical resize " . (winheight(0) * 2/3)<CR>
 " Open a small terminal
 if has('nvim')
     nnoremap <leader>o :below 10sp term://$SHELL<cr>i
 endif
-"nmap zz ZZ
 " }}}
 
 " Settings {{{
@@ -181,9 +190,15 @@ if !executable('task')
     let g:loaded_taskwarrior = 1
 endif
 
+
 if !has('python3')
     let g:loaded_pct = 1
 endif
+
+" taskwarrior {{{
+let g:task_rc_override = 'rc.defaultwidth=0'
+let g:task_report_name = '-home'
+" }}}
 
 " netrw {{{
 let g:netrw_liststyle=0
@@ -312,8 +327,8 @@ augroup latex
         let g:LatexBox_fold_envs = 1
     endif
 "    au BufWritePost *.tex Latexmk
-    au BufWinLeave *.tex,*.sty mkview
-    au BufWinEnter *.tex,*.sty silent loadview
+    " au BufWinLeave *.tex,*.sty mkview
+    " au BufWinEnter *.tex,*.sty silent loadview
     au FileType tex syntax spell toplevel
     au FileType tex set spell textwidth=78 smartindent
     au FileType tex set formatoptions+=w
@@ -555,7 +570,6 @@ augroup misc
     au FileType mail if executable("par") | set formatprg=par | endif
     au FileType mail map <F8> :%g/^> >/d<CR>gg10j
     au FileType mail StripWhitespace
-    au FileType mail,text let b:delimitMate_autoclose = 0
     au BufWinEnter *vimChatRoster, set foldlevel=1
     au BufWinEnter *.nse set filetype=lua
     " If a JS file has only one line, unminify it
@@ -752,3 +766,6 @@ endif
 if filereadable($ADMIN_SCRIPTS . "/vim/biggrep.vim")
     source $ADMIN_SCRIPTS/vim/biggrep.vim
 endif
+
+" Why do you turn this off
+set hlsearch

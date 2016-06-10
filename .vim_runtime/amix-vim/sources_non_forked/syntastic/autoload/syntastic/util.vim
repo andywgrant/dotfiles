@@ -51,7 +51,7 @@ endfunction " }}}2
 function! syntastic#util#tmpdir() abort " {{{2
     let tempdir = ''
 
-    if (has('unix') || has('mac')) && executable('mktemp')
+    if (has('unix') || has('mac')) && executable('mktemp') && !has('win32unix')
         " TODO: option "-t" to mktemp(1) is not portable
         let tmp = $TMPDIR !=# '' ? $TMPDIR : $TMP !=# '' ? $TMP : '/tmp'
         let out = split(syntastic#util#system('mktemp -q -d ' . tmp . '/vim-syntastic-' . getpid() . '-XXXXXXXX'), "\n")
@@ -90,18 +90,7 @@ function! syntastic#util#rmrf(what) abort " {{{2
     endif
 
     if  getftype(a:what) ==# 'dir'
-        if !exists('s:rmrf')
-            let s:rmrf =
-                \ has('unix') || has('mac') ? 'rm -rf' :
-                \ has('win32') || has('win64') ? 'rmdir /S /Q' :
-                \ has('win16') || has('win95') || has('dos16') || has('dos32') ? 'deltree /Y' : ''
-        endif
-
-        if s:rmrf !=# ''
-            silent! call syntastic#util#system(s:rmrf . ' ' . syntastic#util#shescape(a:what))
-        else
-            call s:_rmrf(a:what)
-        endif
+        call s:_delete(a:what, 'rf')
     else
         silent! call delete(a:what)
     endif
@@ -251,7 +240,12 @@ function! syntastic#util#findGlobInParent(what, where) abort " {{{2
 
     let old = ''
     while here !=# ''
-        let p = split(globpath(here, a:what, 1), '\n')
+        try
+            " Vim 7.4.279 and later
+            let p = globpath(here, a:what, 1, 1)
+        catch /\m^Vim\%((\a\+)\)\=:E118/
+            let p = split(globpath(here, a:what, 1), "\n")
+        endtry
 
         if !empty(p)
             return fnamemodify(p[0], ':p')
@@ -274,8 +268,9 @@ function! syntastic#util#unique(list) abort " {{{2
     let seen = {}
     let uniques = []
     for e in a:list
-        if !has_key(seen, e)
-            let seen[e] = 1
+        let k = string(e)
+        if !has_key(seen, k)
+            let seen[k] = 1
             call add(uniques, e)
         endif
     endfor
@@ -337,6 +332,21 @@ endfunction " }}}2
 " (hopefully high resolution) time since program start
 function! syntastic#util#stamp() abort " {{{2
     return split( split(reltimestr(reltime(g:_SYNTASTIC_START)))[0], '\.' )
+endfunction " }}}2
+
+let s:_wid_base = 'syntastic_' . getpid() . '_' . reltimestr(g:_SYNTASTIC_START) . '_'
+let s:_wid_pool = 0
+
+" Add unique IDs to windows
+function! syntastic#util#setWids() abort " {{{2
+    for tab in range(1, tabpagenr('$'))
+        for win in range(1, tabpagewinnr(tab, '$'))
+            if gettabwinvar(tab, win, 'syntastic_wid') ==# ''
+                call settabwinvar(tab, win, 'syntastic_wid', s:_wid_base . s:_wid_pool)
+                let s:_wid_pool += 1
+            endif
+        endfor
+    endfor
 endfunction " }}}2
 
 let s:_str2float = function(exists('*str2float') ? 'str2float' : 'str2nr')
@@ -463,6 +473,27 @@ function! s:_translateElement(key, term) abort " {{{2
     return ret
 endfunction " }}}2
 
+" @vimlint(EVL103, 1, a:flags)
+function! s:_delete_dumb(what, flags) abort " {{{2
+    if !exists('s:rmrf')
+        let s:rmrf =
+            \ has('unix') || has('mac') ? 'rm -rf' :
+            \ has('win32') || has('win64') ? 'rmdir /S /Q' :
+            \ has('win16') || has('win95') || has('dos16') || has('dos32') ? 'deltree /Y' : ''
+    endif
+
+    if s:rmrf !=# ''
+        silent! call syntastic#util#system(s:rmrf . ' ' . syntastic#util#shescape(a:what))
+    else
+        call s:_rmrf(a:what)
+    endif
+endfunction " }}}2
+" @vimlint(EVL103, 0, a:flags)
+
+" delete(dir, 'rf') was added in Vim 7.4.1107, but it didn't become usable until 7.4.1128
+let s:_delete = function(v:version > 704 || (v:version == 704 && has('patch1128')) ? 'delete' : 's:_delete_dumb')
+lockvar s:_delete
+
 function! s:_rmrf(what) abort " {{{2
     if !exists('s:rmdir')
         let s:rmdir = syntastic#util#shescape(get(g:, 'netrw_localrmdir', 'rmdir'))
@@ -473,7 +504,13 @@ function! s:_rmrf(what) abort " {{{2
             return
         endif
 
-        for f in split(globpath(a:what, '*', 1), "\n")
+        try
+            " Vim 7.4.279 and later
+            let entries = globpath(a:what, '*', 1, 1)
+        catch /\m^Vim\%((\a\+)\)\=:E118/
+            let entries = split(globpath(a:what, '*', 1), "\n")
+        endtry
+        for f in entries
             call s:_rmrf(f)
         endfor
         silent! call syntastic#util#system(s:rmdir . ' ' . syntastic#util#shescape(a:what))

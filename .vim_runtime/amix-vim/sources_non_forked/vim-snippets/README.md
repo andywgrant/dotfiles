@@ -74,7 +74,9 @@ Additional snippets can be added to the current buffer with the
 "snippets" ending. For example, to add the JavaScript Jasmine snippets, run:
 `:UltiSnipsAddFiletypes javascript-jasmine`. To have this snippet loaded
 everytime a JavaScript file is opened or created you can add the command to your
-`.vim/ftplugin/javascript.vim` file.
+ -`.vim/ftplugin/javascript.vim` file. Another way is to add
+ `autocmd FileType js UltiSnipsAddFiletypes javascript-jasmine` in your `.vimrc`.
+
 
 For more see the UltiSnips docs (`:help UltiSnips`).
 
@@ -169,6 +171,7 @@ so that all users can benefit from them.  People can list their snippet reposito
 * https://github.com/sudar/vim-arduino-snippets (snippets for Arduino files)
 * https://github.com/zedr/zope-snipmate-bundle.git (snippets for Python, TAL and ZCML)
 * https://github.com/bonsaiben/bootstrap-snippets (snippets for Twitter Bootstrap markup, in HTML and Haml)
+* https://github.com/sniphpets (advanced snippets for PHP, Symfony 2/3, Doctrine and etc.)
 
 Installation using VAM: https://github.com/MarcWeber/vim-addon-manager
 

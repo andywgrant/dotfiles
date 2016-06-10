@@ -1,3 +1,7 @@
+" Pathogen
+execute pathogen#infect('~/.vim/bundle/{}')
+
+
 set mouse=a             " Turn this off for console-only mode
 set selectmode-=mouse	" Allow the mouse to enter visual mode
 set cursorline          " Highlight current line, but slow
@@ -277,8 +281,6 @@ let g:bufexplorer_version = "disabled"
 
 set noequalalways " Do not equalize the windows when closing a split; because of Tagbar
 
-let delimitMate_autoclose = 0 " Stop inserting extra quotes and such
-
 " Add "Commented Vulns" to tagbar for latex
 let g:tagbar_type_tex = {
     \ 'ctagstype' : 'latex',
@@ -303,3 +305,45 @@ let g:ctrlp_max_files=0
 
 augroup latex
 augroup end
+
+set rtp+=/usr/local/opt/fzf
+
+noremap <D-{> :bp<CR>
+noremap <D-}> :bn<CR>
+inoremap <D-{> <ESC>:bp<CR>
+inoremap <D-}> <ESC>:bn<CR>
+
+" Disable syntastic checking
+let g:syntastic_mode_map = { 'mode': 'passive', 'active_filetypes': [],'passive_filetypes': [] }
+
+" fzf via iterm
+let g:fzf_launcher = "in_a_new_term_function %s"
+
+if has("gui_macvim")
+    " CommandW to kill buffers
+    macmenu &File.Close key=<nop>
+    nmap <D-w> :CommandW<CR>
+    imap <D-w> <Esc>:CommandW<CR>
+endif
+
+" Function for opening input and inputvuln files
+function! OpenTexFile()
+    exe "normal 0l"
+    if expand("<cword>") == "inputvuln"
+        exe "normal 0Eh"
+        belowright wincmd f
+        wincmd k
+        1wincmd _
+        wincmd j
+    else
+        exe "normal 0Ehgf"
+    endif
+endfunction
+
+" Function for opening Phrack philes from Table of Contents
+function! OpenPhile()
+    exe "normal 0"
+    let xphile = expand("<cword>")
+    let phile = str2nr(xphile, 16)
+    exe ':e ' . phile . '.phrack'
+endfunction

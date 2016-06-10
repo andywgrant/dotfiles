@@ -4,9 +4,6 @@
 if exists("g:LatexBox_custom_indent") && ! g:LatexBox_custom_indent
 	finish
 endif
-if exists("b:did_indent")
-	finish
-endif
 
 let b:did_indent = 1
 
@@ -76,6 +73,16 @@ function! LatexBox_TexIndent()
 
 	" reduce indentation if previous line is \begin{document}
 	if line_prev =~ '\\begin\s*{document}'
+		let n -= 1
+	endif
+    
+	" reduce indentation if previous line is \begin{nccvuln}
+	if line_prev =~ '\\begin\s*{nccvuln}'
+		let n -= 1
+	endif
+    
+	" reduce indentation if previous line is \begin{execsum}
+	if line_prev =~ '\\begin\s*{execsum}'
 		let n -= 1
 	endif
 
