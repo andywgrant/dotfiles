@@ -1,12 +1,45 @@
-set runtimepath+=~/.vim_runtime,~/.vim_runtime/amix-vim,~/.vim_runtime/lx-dotfiles/.vim
-if has('win32') || has('win64')
-    set runtimepath=$HOME/.vim,$HOME/.vim_runtime,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,$HOME/.vim/after
-endif
+" vim-plug
+call plug#begin('~/.vim/plugged')
+" Make sure you use single quotes
 
-source ~/.vim_runtime/amix-vim/vimrcs/basic.vim
-source ~/.vim_runtime/amix-vim/vimrcs/filetypes.vim
-source ~/.vim_runtime/amix-vim/vimrcs/plugins_config.vim
-source ~/.vim_runtime/amix-vim/vimrcs/extended.vim
-source ~/.vim_runtime/lx-dotfiles/.vimrc
-source ~/.vim_runtime/vimrcs/mine.vim
+" Any valid git URL is allowed
+Plug 'https://github.com/junegunn/vim-github-dashboard'
+Plug 'https://github.com/vim-airline/vim-airline'
+Plug 'https://github.com/vim-airline/vim-airline-themes'
+Plug 'https://github.com/airblade/vim-gitgutter'
+Plug 'https://github.com/majutsushi/tagbar'
+Plug 'https://github.com/qpkorr/vim-bufkill'
+Plug 'https://github.com/nathanaelkane/vim-command-w'
+Plug 'https://github.com/kien/ctrlp.vim'
+Plug 'https://github.com/tomtom/tlib_vim'
+Plug 'https://github.com/tpope/vim-commentary'
+Plug 'https://github.com/godlygeek/tabular'
+Plug 'https://github.com/MarcWeber/vim-addon-mw-utils'
+Plug 'https://github.com/garbas/vim-snipmate'
+Plug 'https://github.com/honza/vim-snippets'
+Plug 'https://github.com/tomtom/quickfixsigns_vim'
+Plug 'https://github.com/vim-scripts/CursorLineCurrentWindow'
+Plug 'https://github.com/rking/ag.vim'
+Plug 'https://github.com/ConradIrwin/vim-bracketed-paste'
+Plug 'https://github.com/ap/vim-buftabline'
+Plug 'https://github.com/rhysd/clever-f.vim'
+Plug 'https://github.com/tpope/vim-fugitive'
+Plug 'https://github.com/gregsexton/gitv'
+Plug 'https://github.com/tmhedberg/matchit'
+Plug 'https://github.com/goldfeld/vim-seek'
+Plug 'https://github.com/millermedeiros/vim-statline'
+Plug 'https://github.com/kshenoy/vim-signature'
+Plug 'https://github.com/LaTeX-Box-Team/LaTeX-Box'
 
+" On-demand loading
+Plug 'https://github.com/scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
+Plug 'https://github.com/d0c-s4vage/pct-vim', { 'on': 'PctInit' }
+
+Plug 'https://github.com/vim-php/phpctags', { 'for': 'php' }
+Plug 'https://github.com/tpope/vim-markdown', { 'for': 'markdown' }
+
+" Initialize plugin system
+call plug#end()
+
+" vimrc
+source ~/.vim/vimrc.vim

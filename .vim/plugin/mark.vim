@@ -1,8 +1,8 @@
 " Script Name: mark.vim
 " Description: Highlight several words in different colors simultaneously.
 "
-" Copyright:   (C) 2005-2008 Yuheng Xie
-"              (C) 2008-2013 Ingo Karkat
+" Copyright:   (C) 2008-2014 Ingo Karkat
+"              (C) 2005-2008 Yuheng Xie
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:  Ingo Karkat <ingo@karkat.de>
@@ -14,8 +14,33 @@
 "  - mark.vim autoload script
 "  - mark/palettes.vim autoload script for additional palettes
 "
-" Version:     2.8.0
+" Version:     2.8.5
 " Changes:
+" 29-Oct-2014, Ingo Karkat
+" - ENH: Add alternative <Plug>MarkConfirmAllClear optional command that works
+"   like <Plug>MarkAllClear, but with confirmation. Thanks to Marcelo Montu for
+"   suggesting this!
+"
+" 16-Jun-2014, Ingo Karkat
+" - Change how errors of <Plug>MarkRegex are passed. In order to support the
+"   :echoerr of :Mark, and the added error messages for invalid regular
+"   expressions, store the message in v:errmsg, and :echoerr that explicitly in
+"   the mapping / command.
+" - Use new mark#SetMark() wrapper for :Mark.
+"
+" 23-May-2014, Ingo Karkat
+" - The additional mapping described under :help mark-whitespace-indifferent got
+"   broken again by the refactoring of mark#DoMark() on 31-Jan-2013. Finally
+"   include this in the script as <Plug>MarkIWhiteSet and
+"   mark#GetVisualSelectionAsLiteralWhitespaceIndifferentPattern().
+"
+" 16-Dec-2013, Ingo Karkat
+" - BUG: :Mark cannot highlight patterns starting with a number. Use -range=0
+"   instead of -count. Thanks to Vladimir Marek for reporting this.
+"
+" 20-Jun-2013, Ingo Karkat
+" - Allow to override the adding to existing marks via :[N]Mark! {pattern}.
+"
 " 31-May-2013, Ingo Karkat
 " - Define default mappings for keys 1-9 on the numerical keypad to jump to a
 "   particular group (backwards with <C-kN>). Their definition is controlled by
@@ -313,13 +338,15 @@ highlight def link SearchSpecialSearchType MoreMsg
 
 "- mappings -------------------------------------------------------------------
 
-nnoremap <silent> <Plug>MarkSet      :<C-u>if !mark#MarkCurrentWord(v:count)<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>endif<CR>
-vnoremap <silent> <Plug>MarkSet      :<C-u>if !mark#DoMark(v:count, mark#GetVisualSelectionAsLiteralPattern())[0]<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>endif<CR>
-nnoremap <silent> <Plug>MarkRegex    :<C-u>if !mark#MarkRegex(v:count, '')<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>endif<CR>
-vnoremap <silent> <Plug>MarkRegex    :<C-u>if !mark#MarkRegex(v:count, mark#GetVisualSelectionAsRegexp())<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>endif<CR>
-nnoremap <silent> <Plug>MarkClear    :<C-u>if !mark#DoMark(v:count, (v:count ? '' : mark#CurrentMark()[0]))[0]<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>endif<CR>
-nnoremap <silent> <Plug>MarkAllClear :<C-u>call mark#ClearAll()<CR>
-nnoremap <silent> <Plug>MarkToggle   :<C-u>call mark#Toggle()<CR>
+nnoremap <silent> <Plug>MarkSet               :<C-u>if !mark#MarkCurrentWord(v:count)<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>endif<CR>
+vnoremap <silent> <Plug>MarkSet               :<C-u>if !mark#DoMark(v:count, mark#GetVisualSelectionAsLiteralPattern())[0]<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>endif<CR>
+vnoremap <silent> <Plug>MarkIWhiteSet         :<C-u>if !mark#DoMark(v:count, mark#GetVisualSelectionAsLiteralWhitespaceIndifferentPattern())[0]<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>endif<CR>
+nnoremap <silent> <Plug>MarkRegex             :<C-u>if !mark#MarkRegex(v:count, '')<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ! empty(v:errmsg)<Bar>echoerr v:errmsg<Bar>endif<Bar>endif<CR>
+vnoremap <silent> <Plug>MarkRegex             :<C-u>if !mark#MarkRegex(v:count, mark#GetVisualSelectionAsRegexp())<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ! empty(v:errmsg)<Bar>echoerr v:errmsg<Bar>endif<Bar>endif<CR>
+nnoremap <silent> <Plug>MarkClear             :<C-u>if !mark#DoMark(v:count, (v:count ? '' : mark#CurrentMark()[0]))[0]<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>endif<CR>
+nnoremap <silent> <Plug>MarkAllClear          :<C-u>call mark#ClearAll()<CR>
+nnoremap <silent> <Plug>MarkConfirmAllClear   :<C-u>if confirm('Really delete all marks? This cannot be undone.', "&Yes\n&No") == 1<Bar>call mark#ClearAll()<Bar>endif<CR>
+nnoremap <silent> <Plug>MarkToggle            :<C-u>call mark#Toggle()<CR>
 
 nnoremap <silent> <Plug>MarkSearchCurrentNext :<C-u>call mark#SearchCurrentMark(0)<CR>
 nnoremap <silent> <Plug>MarkSearchCurrentPrev :<C-u>call mark#SearchCurrentMark(1)<CR>
@@ -338,40 +365,42 @@ nnoremap <silent> <Plug>MarkSearchGroupPrev   :<C-u>call mark#SearchGroupMark(v:
 
 
 if !hasmapto('<Plug>MarkSet', 'n')
-	nmap <unique> <S-F8> <Plug>MarkSet
+	nmap <unique> <Leader>m <Plug>MarkSet
 endif
 if !hasmapto('<Plug>MarkSet', 'x')
-	xmap <unique> <S-F8> <Plug>MarkSet
+	xmap <unique> <Leader>m <Plug>MarkSet
 endif
+" No default mapping for <Plug>MarkIWhiteSet.
 if !hasmapto('<Plug>MarkRegex', 'n')
-	nmap <unique> <C-S-F8> <Plug>MarkRegex
+	nmap <unique> <Leader>r <Plug>MarkRegex
 endif
 if !hasmapto('<Plug>MarkRegex', 'x')
-	xmap <unique> <C-S-F8> <Plug>MarkRegex
+	xmap <unique> <Leader>r <Plug>MarkRegex
 endif
 if !hasmapto('<Plug>MarkClear', 'n')
-	nmap <unique> <Leader>c <Plug>MarkClear
+	nmap <unique> <Leader>n <Plug>MarkClear
 endif
 " No default mapping for <Plug>MarkAllClear.
+" No default mapping for <Plug>MarkConfirmAllClear.
 " No default mapping for <Plug>MarkToggle.
 
 if !hasmapto('<Plug>MarkSearchCurrentNext', 'n')
-"	nmap <unique> <Leader>* <Plug>MarkSearchCurrentNext
+	nmap <unique> <Leader>* <Plug>MarkSearchCurrentNext
 endif
 if !hasmapto('<Plug>MarkSearchCurrentPrev', 'n')
-"	nmap <unique> <Leader># <Plug>MarkSearchCurrentPrev
+	nmap <unique> <Leader># <Plug>MarkSearchCurrentPrev
 endif
 if !hasmapto('<Plug>MarkSearchAnyNext', 'n')
-"	nmap <unique> <Leader>/ <Plug>MarkSearchAnyNext
+	nmap <unique> <Leader>/ <Plug>MarkSearchAnyNext
 endif
 if !hasmapto('<Plug>MarkSearchAnyPrev', 'n')
-"	nmap <unique> <Leader>? <Plug>MarkSearchAnyPrev
+	nmap <unique> <Leader>? <Plug>MarkSearchAnyPrev
 endif
 if !hasmapto('<Plug>MarkSearchNext', 'n')
-"	nmap <unique> * <Plug>MarkSearchNext
+	nmap <unique> * <Plug>MarkSearchNext
 endif
 if !hasmapto('<Plug>MarkSearchPrev', 'n')
-"	nmap <unique> # <Plug>MarkSearchPrev
+	nmap <unique> # <Plug>MarkSearchPrev
 endif
 " No default mapping for <Plug>MarkSearchOrCurNext
 " No default mapping for <Plug>MarkSearchOrCurPrev
@@ -398,7 +427,7 @@ delfunction s:MakeDirectGroupMappings
 
 "- commands -------------------------------------------------------------------
 
-command! -count -nargs=? Mark if !mark#DoMarkAndSetCurrent(<count>, <f-args>)[0] | echoerr printf('Only %d mark highlight groups', mark#GetGroupNum()) | endif
+command! -bang -range=0 -nargs=? -complete=customlist,mark#Complete Mark if <bang>0 | silent call mark#DoMark(<count>, '') | endif | if !mark#SetMark(<count>, <f-args>)[0] | echoerr v:errmsg | endif
 command! -bar MarkClear call mark#ClearAll()
 command! -bar Marks call mark#List()
 
