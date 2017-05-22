@@ -11,6 +11,7 @@ Plug 'https://github.com/majutsushi/tagbar'
 Plug 'https://github.com/qpkorr/vim-bufkill'
 Plug 'https://github.com/nathanaelkane/vim-command-w'
 Plug 'https://github.com/kien/ctrlp.vim'
+Plug 'https://github.com/ivalkeen/vim-ctrlp-tjump'
 Plug 'https://github.com/tomtom/tlib_vim'
 Plug 'https://github.com/tpope/vim-commentary'
 Plug 'https://github.com/godlygeek/tabular'
@@ -37,6 +38,7 @@ Plug 'https://github.com/d0c-s4vage/pct-vim', { 'on': 'PctInit' }
 
 Plug 'https://github.com/vim-php/phpctags', { 'for': 'php' }
 Plug 'https://github.com/tpope/vim-markdown', { 'for': 'markdown' }
+Plug 'https://github.com/fatih/vim-go', { 'for': 'go' }
 
 " Initialize plugin system
 call plug#end()
