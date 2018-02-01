@@ -11,7 +11,8 @@ nnoremap -- :call WrapMerge()<CR>
 nmap <F1> [s1z=<C-o>
 imap <F1> <Esc>[s1z=<C-o>a
 " file explorer
-map <silent> <F9> :call ToggleVExplorer()<CR>
+"map <silent> <F9> :call ToggleVExplorer()<CR>
+map <silent> <F9> :NERDTreeToggle<CR>
 " tagbar
 nnoremap <silent> <F10> :TagbarToggle<CR>
 " paste mode
@@ -266,8 +267,9 @@ endtry
 
 
 " netrw {{{
-let g:netrw_liststyle=0
+let g:netrw_liststyle=3
 let g:netrw_browse_split=4
+let g:netrw_altv=1
 let g:netrw_winsize=25
 let g:netrw_banner=0
 let g:netrw_list_hide='\(^\|\s\s\)\zs\.\S\+' "hide files by default
@@ -393,7 +395,7 @@ augroup latex
     au FileType tex nmap tt i\texttt{<Esc>wEa}<Esc>
     au FileType tex source ~/.vim/ftplugin/quotes.vim
     " Key binding for opening input files
-    nnoremap <buffer> gh :call OpenTexFile()<CR>
+    au FileType tex nnoremap <buffer> gh :call OpenTexFile()<CR>
     " Function for opening input and inputvuln files
     function! OpenTexFile()
         exe "normal 0l"
@@ -402,6 +404,7 @@ augroup latex
             belowright wincmd f
             wincmd k
             1wincmd _
+            exe "normal zz"
             wincmd j
         else
             exe "normal 0Ehgf"
@@ -442,13 +445,15 @@ augroup end
 let g:ctrlp_cmd = 'CtrlP'
 let g:ctrlp_map = '<C-e>'
 let g:ctrlp_by_filename = 1
-let g:ctrlp_working_path_mode = 0
+" let g:ctrlp_working_path_mode = 0
+let g:ctrlp_working_path_mode = 'ra'
 let g:ctrlp_max_height = 30
 let g:ctrlp_clear_cache_on_exit = 0
 let g:ctrlp_extensions = ['buffertag']
 let g:ctrlp_max_files = 0
 let g:ctrlp_lazy_update = 350
-let g:ctrlp_match_func = { 'match': 'pymatcher#PyMatch' }
+let g:ctrlp_root_markers = ['tags']
+" let g:ctrlp_match_func = { 'match': 'pymatcher#PyMatch' }
 let g:ctrlp_tjump_shortener = ['/\(Users|home\)/agrant', '~']
 let g:ctrlp_tjump_only_silent = 1
 " Speed up CtrlP
@@ -935,3 +940,12 @@ endfunction
 
 " Why do you turn this off
 set hlsearch
+
+" Underline the current line with dashes in normal mode
+nnoremap <F5> yyp<c-v>$r-o<Esc>
+
+" Underline the current line with dashes in insert mode
+inoremap <F5> <Esc>yyp<c-v>$r-A<CR>
+
+" Work-specific vimrc
+source ~/.vim/vimrc-work.vim

@@ -1,4 +1,6 @@
 .vim/view/
+.vim/temp_dirs/
 .netrwhist
 .vim_runtime/temp_dirs/
 .vim_runtime/amix-vim/temp_dirs/
+.vim/vimrc-work.vim
