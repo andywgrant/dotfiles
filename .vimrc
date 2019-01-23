@@ -21,7 +21,6 @@ Plug 'https://github.com/garbas/vim-snipmate'
 Plug 'https://github.com/honza/vim-snippets'
 Plug 'https://github.com/tomtom/quickfixsigns_vim'
 Plug 'https://github.com/vim-scripts/CursorLineCurrentWindow'
-Plug 'https://github.com/rking/ag.vim'
 Plug 'https://github.com/ConradIrwin/vim-bracketed-paste'
 Plug 'https://github.com/ap/vim-buftabline'
 Plug 'https://github.com/rhysd/clever-f.vim'
@@ -33,6 +32,10 @@ Plug 'https://github.com/millermedeiros/vim-statline'
 Plug 'https://github.com/kshenoy/vim-signature'
 Plug 'https://github.com/LaTeX-Box-Team/LaTeX-Box'
 Plug 'https://github.com/vimwiki/vimwiki.git'
+Plug 'https://github.com/jremmen/vim-ripgrep'
+" Plug 'https://github.com/rking/ag.vim'
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
 
 " On-demand loading
 Plug 'https://github.com/scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
@@ -41,6 +44,7 @@ Plug 'https://github.com/d0c-s4vage/pct-vim', { 'on': 'PctInit' }
 Plug 'https://github.com/vim-php/phpctags', { 'for': 'php' }
 Plug 'https://github.com/tpope/vim-markdown', { 'for': 'markdown' }
 Plug 'https://github.com/fatih/vim-go', { 'for': 'go' }
+Plug 'https://github.com/leafgarland/typescript-vim', { 'for': 'typescript' }
 
 " Initialize plugin system
 call plug#end()

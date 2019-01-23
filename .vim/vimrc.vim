@@ -42,7 +42,7 @@ vnoremap <silent> # :call VisualSelection('b', '')<CR>
 map <silent> <leader><cr> :noh<cr>
 " Specify the behavior when switching between buffers 
 try
-  set switchbuf=useopen,usetab,newtab
+  set switchbuf=useopen
   set stal=2
 catch
 endtry
@@ -76,10 +76,10 @@ if has("gui_running")
     map <C-s> :update<CR>
 endif
 " Ack
-nnoremap _lg :call TAckRun(" ", "normal")<CR>
-nnoremap _lG :call TAckRun("-i ", "normal")<CR>
-vnoremap _lg :call TAckRun(" ", "visual")<CR>
-vnoremap _lG :call TAckRun("-i ", "visual")<CR>
+" nnoremap _lg :call TAckRun(" ", "normal")<CR>
+" nnoremap _lG :call TAckRun("-i ", "normal")<CR>
+" vnoremap _lg :call TAckRun(" ", "visual")<CR>
+" vnoremap _lG :call TAckRun("-i ", "visual")<CR>
 " CTRL-v in insert mode inserts * register without indent correction
 imap <C-v> <C-r><C-o>*
 "Select All
@@ -104,6 +104,8 @@ nnoremap <C-]> :execute 'tj' expand('<cword>')<CR>zv
 " Old Mark mapping is preferable to new one
 nmap <unique> <S-F8> <Plug>MarkSet
 xmap <unique> <S-F8> <Plug>MarkSet
+" Home insert-mode escape
+inoremap kj <esc>
 " }}}
 
 " Settings {{{
@@ -157,9 +159,9 @@ set hlsearch                " highlight all search matches
 set foldcolumn=0            " I never use this.
 set nojoinspaces            " disallow two spaces after a period when joining
 if version >= 704
-    set formatoptions=qjnrtlmnc " auto-formatting style
+    set formatoptions=qjntlmnc " auto-formatting style
 else
-    set formatoptions=qnrtlmnc  " auto-formatting style minus j
+    set formatoptions=qntlmnc  " auto-formatting style minus j
 endif
 set autoindent
 set shiftround              " Round to the nearest shiftwidth when shifting
@@ -172,7 +174,7 @@ set formatlistpat=^\\s*\\([0-9]\\+\\\|[a-z]\\)[\\].:)}]\\s\\+
 set grepprg=grep\ -R\ --exclude=\"*.aux\"\ --exclude=\"tags\"\ --exclude=\"*scope.out\"\ --color=always\ -nIH\ $*
 set cpoptions=BFt
 set completeopt=menuone,longest
-set tags=tags,./tags
+set tags=./tags;
 set nobackup                " ugh, stop making useless crap
 set nowritebackup           " same with overwriting
 set noswapfile
@@ -183,7 +185,7 @@ set backspace=indent,eol,start
 set whichwrap+=<,>,h,l,[,]  " left/right cursor navigation wraps
 set ruler                   " show position in file
 set title
-set titlestring=%t%(\ %M%)%(\ (%{expand(\"%:p:h\")})%)%(\ %a%)
+set titlestring=%t%(\ %M%)%(\ (%<%{expand(\"%:p:h:s?/Users/agrant/ncc/current_project/??\")})%)%(\ %a%)
 set ttimeout
 set ttimeoutlen=100         " Make it so Esc enters Normal mode right away
 set helpheight=0            " no minimum helpheight
@@ -233,11 +235,27 @@ if has("gui_macvim")
 endif
 
 " Ack
-if has("mac") || has("macunix")
-    let g:ackprg="ag --nocolor --nogroup --column"
-else
-    let g:ackprg="ag --nocolor --nogroup --column"
-endif
+" if has("mac") || has("macunix")
+"     let g:ackprg="ag --nocolor --nogroup --column"
+" else
+"     let g:ackprg="ag --nocolor --nogroup --column"
+" endif
+" }}}
+
+" Use ripgrep {{{
+set grepprg=rg\ --vimgrep
+
+" --column: Show column number
+" --line-number: Show line number
+" --no-heading: Do not show file headings in results
+" --fixed-strings: Search term as a literal string
+" --ignore-case: Case insensitive search
+" --no-ignore: Do not respect .gitignore, etc...
+" --hidden: Search hidden files and folders
+" --follow: Follow symlinks
+" --glob: Additional conditions for search (in this case ignore everything in the .git/ folder)
+" --color: Search color options
+command! -bang -nargs=* Find call fzf#vim#grep('rg --column --line-number --no-heading --fixed-strings --ignore-case --no-ignore --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>), 1, <bang>0)
 " }}}
 
 " Plugins
@@ -621,8 +639,8 @@ augroup markdown
     au BufWinEnter *.md,*.notes, silent loadview
     au BufWinEnter *.md,*.notes, imap <C-l> <C-t>
     au BufWinEnter *.md,*.notes, imap <C-h> <C-d>
-    au BufWinEnter *.md,*.notes,*mutt*, imap >> <C-t>
-    au BufWinEnter *.md,*.notes,*mutt*, imap << <C-d>
+    au BufWinEnter *.md,*.notes,*mutt*,*.wiki imap >> <C-t>
+    au BufWinEnter *.md,*.notes,*mutt*,*.wiki imap << <C-d>
     au FileType markdown set spell
     au FileType markdown set textwidth=78 complete+=k comments+=b:-,b:+,b:*,b:+,n:>
 augroup end
@@ -924,17 +942,17 @@ function! s:get_visual_selection()
 endfunction
 
 " Ack
-function! TAckRun(r,m)
-    if (a:m == "normal")
-        let curword = expand("<cword>")
-    elseif (a:m == "visual")
-        let curword = s:get_visual_selection()
-    endif
-    if (strlen(curword) == 0)
-        return
-    endif
-    execut  'Ack ' . a:r . ' ' . curword
-endfunction
+" function! TAckRun(r,m)
+"     if (a:m == "normal")
+"         let curword = expand("<cword>")
+"     elseif (a:m == "visual")
+"         let curword = s:get_visual_selection()
+"     endif
+"     if (strlen(curword) == 0)
+"         return
+"     endif
+"     execut  'Ack ' . a:r . ' ' . curword
+" endfunction
 " }}}
 
 
@@ -946,6 +964,3 @@ nnoremap <F5> yyp<c-v>$r-o<Esc>
 
 " Underline the current line with dashes in insert mode
 inoremap <F5> <Esc>yyp<c-v>$r-A<CR>
-
-" Work-specific vimrc
-source ~/.vim/vimrc-work.vim
