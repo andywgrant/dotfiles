@@ -83,10 +83,10 @@ defaults write com.apple.screensaver askForPasswordDelay -int 5
 defaults write NSGlobalDomain AppleFontSmoothing -int 2
 
 # Show icons for hard drives, servers, and removable media on the desktop
-defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
+#defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
 #defaults write com.apple.finder ShowHardDrivesOnDesktop -bool true
-defaults write com.apple.finder ShowMountedServersOnDesktop -bool true
-defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool true
+#defaults write com.apple.finder ShowMountedServersOnDesktop -bool true
+#defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool true
 
 # DARK MODE
 sudo defaults write /Library/Preferences/.GlobalPreferences AppleInterfaceTheme Dark
@@ -170,6 +170,8 @@ killall Finder
 # sudo touch /private/var/vm/sleepimage
 # sudo chflags uchg /private/var/vm/sleepimage
 
+sudo pmset -a standbydelay 300 standby 0 halfdim 1 powernap 0 gpusiwtch 2 disksleep 0 sleep 90 autopoweroffdelay 0 hibernatemode 25 autopoweroff 0 ttyskeepawake 1 displaysleep 60 acwake 0 lidwake 1
+
 # Copy settings
 
 read -p "Preparing to copy settings"
@@ -187,7 +189,8 @@ read -p "Preparing to install apps"
 sudo xcodebuild -license
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 brew doctor
-brew install cscope nmap python3 zsh ag
+brew install cscope nmap python3 zsh rg coreutils colordiff exiftool
+brew install flawfinder fswatch hashcat rats wdiff the_silver_searcher
 brew install vim --with-override-system-vi --with-lua --with-python3
 brew install ctags --HEAD
 
@@ -198,7 +201,6 @@ brew tap buo/cask-upgrade
 brew tap caskroom/fonts
 brew cask install font-inconsolata
 brew cask install font-source-code-pro
-brew cask install font-m-plus
 brew cask install iterm2
 brew cask install spectacle
 brew cask install karabiner-elements

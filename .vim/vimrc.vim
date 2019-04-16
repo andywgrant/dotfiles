@@ -14,7 +14,7 @@ imap <F1> <Esc>[s1z=<C-o>a
 "map <silent> <F9> :call ToggleVExplorer()<CR>
 map <silent> <F9> :NERDTreeToggle<CR>
 " tagbar
-nnoremap <silent> <F10> :TagbarToggle<CR>
+nnoremap <silent> <F10> :call Min_width_tagbar()<CR>
 " paste mode
 set pastetoggle=<F11>
 " preview the tag under the cursor
@@ -149,7 +149,7 @@ set scrolloff=3             " 3 lines of buffer before scrolling
 set ignorecase              " case insensitive searches
 set smartcase               " unless you type uppercase explicitly
 set smarttab                " use shiftwidth instead of tab stops
-set wildmode=longest,list   " shows a list of candidates when tab-completing
+set wildmode=longest,list,full   " shows a list of candidates when tab-completing
 set wildmenu                " use a more functional completion menu when tab-completing
 " Avoid garbled characters in Chinese language windows OS
 let $LANG='en' 
@@ -174,6 +174,10 @@ set formatlistpat=^\\s*\\([0-9]\\+\\\|[a-z]\\)[\\].:)}]\\s\\+
 set grepprg=grep\ -R\ --exclude=\"*.aux\"\ --exclude=\"tags\"\ --exclude=\"*scope.out\"\ --color=always\ -nIH\ $*
 set cpoptions=BFt
 set completeopt=menuone,longest
+autocmd Filetype *
+        \	if &omnifunc == "" |
+        \		setlocal omnifunc=syntaxcomplete#Complete |
+        \	endif
 set tags=./tags;
 set nobackup                " ugh, stop making useless crap
 set nowritebackup           " same with overwriting
@@ -208,6 +212,7 @@ set autoread                " Disable warning about file change to writable
 set conceallevel=0          " Don't hide things by default
 set magic                   " vim default for regualr expressions
 set noequalalways           " Do not equalize the windows when closing a split; because of Tagbar
+set showcmd                 " Show the number of selected lines in visual mode
 
 " Set 'very magic' for most places regular expressions are used
 nnoremap / /\v
@@ -559,13 +564,32 @@ let g:tagbar_type_tex = {
     \ 'sort'    : 0,
 \ }
 
+" Add support for markdown files in tagbar.
+" let g:tagbar_type_markdown = {
+"         \ 'ctagstype' : 'markdown',
+"         \ 'kinds' : [
+"                 \ 'h:Heading_L1',
+"                 \ 'i:Heading_L2',
+"                 \ 'j:Heading_L3',
+"                 \ 'k:Heading_L4',
+"                 \ 'l:Heading_L5'
+"         \ ]
+" \ }
+
+" Using markdown2ctags for nesting
 let g:tagbar_type_markdown = {
-        \ 'ctagstype' : 'markdown',
-        \ 'kinds' : [
-                \ 'h:Heading_L1',
-                \ 'i:Heading_L2',
-                \ 'k:Heading_L3'
-        \ ]
+    \ 'ctagstype': 'markdown',
+    \ 'ctagsbin' : '/Users/agrant/.vim/plugged/markdown2ctags/markdown2ctags.py',
+    \ 'ctagsargs' : '-f - --sort=yes --sro=»',
+    \ 'kinds' : [
+        \ 's:sections',
+        \ 'i:images'
+    \ ],
+    \ 'sro' : '»',
+    \ 'kind2scope' : {
+        \ 's' : 'section',
+    \ },
+    \ 'sort': 0,
 \ }
 
 let g:tagbar_type_scala = {
@@ -964,3 +988,32 @@ nnoremap <F5> yyp<c-v>$r-o<Esc>
 
 " Underline the current line with dashes in insert mode
 inoremap <F5> <Esc>yyp<c-v>$r-A<CR>
+
+" ultisnips {{{
+let g:UltiSnipsSnippetDirectories=["UltiSnips"]
+let g:UltiSnipsExpandTrigger="<c-n>"
+let g:UltiSnipsJumpForwardTrigger="<c-b>"
+let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+"  }}}
+
+" In auto-complete menu, return selects highlighted
+inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
+
+" VimWiki {{{
+let g:vimwiki_table_mappings = 0
+"  }}}
+
+" Keep at least 80 columns when opening tagbar
+function! Min_width_tagbar()
+    if winwidth('%') < 80 + g:tagbar_width
+        let g:tagbar_expand = 2
+        execute 'TagbarToggle'
+        let g:tagbar_expand = 0
+    else
+        execute 'TagbarToggle'
+    endif
+endfunction
+
+
+" Work-specific vimrc
+source ~/.vim/vimrc-work.vim

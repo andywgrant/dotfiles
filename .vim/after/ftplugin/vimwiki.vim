@@ -1,6 +1,6 @@
 " If we are on "*" at the beginning of a line, act like the cursor is on the
 " first word when hitting Enter (i.e. follow links when on the list bullet)
-nnoremap <buffer> <CR> :call ListVimwikiFollowLink()<CR>
+" nnoremap <buffer> <CR> :call ListVimwikiFollowLink()<CR>
 if !exists("*ListVimwikiFollowLink")
     function! ListVimwikiFollowLink()
         exe "normal 0"

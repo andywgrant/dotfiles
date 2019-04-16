@@ -17,7 +17,8 @@ Plug 'https://github.com/tomtom/tlib_vim'
 Plug 'https://github.com/tpope/vim-commentary'
 Plug 'https://github.com/godlygeek/tabular'
 Plug 'https://github.com/MarcWeber/vim-addon-mw-utils'
-Plug 'https://github.com/garbas/vim-snipmate'
+" Plug 'https://github.com/garbas/vim-snipmate'
+Plug 'https://github.com/SirVer/ultisnips'
 Plug 'https://github.com/honza/vim-snippets'
 Plug 'https://github.com/tomtom/quickfixsigns_vim'
 Plug 'https://github.com/vim-scripts/CursorLineCurrentWindow'
@@ -36,6 +37,8 @@ Plug 'https://github.com/jremmen/vim-ripgrep'
 " Plug 'https://github.com/rking/ag.vim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
+Plug 'ajh17/VimCompletesMe'
+Plug 'https://github.com/jszakmeister/markdown2ctags'
 
 " On-demand loading
 Plug 'https://github.com/scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
