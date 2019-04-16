@@ -1,7 +1,8 @@
 .DS_Store
-.vim/view/
-.vim/temp_dirs/
 .netrwhist
-.vim_runtime/temp_dirs/
-.vim_runtime/amix-vim/temp_dirs/
+.vim/plugged/
+.vim/temp_dirs/
+.vim/view/
 .vim/vimrc-work.vim
+.vim_runtime/amix-vim/temp_dirs/
+.vim_runtime/temp_dirs/
