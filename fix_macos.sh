@@ -204,12 +204,12 @@ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/
 brew doctor
 brew install cscope nmap python3 zsh rg coreutils colordiff exiftool
 brew install flawfinder fswatch hashcat rats wdiff the_silver_searcher
-brew install vim --with-override-system-vi --with-lua --with-python3
-brew install ctags --HEAD
+brew install vim --with-lua --with-python3
+brew install ctags
 
 # Install casks
 read -p "Preparing to install casks"
-brew install caskroom/cask/brew-cask
+# brew install caskroom/cask/brew-cask
 brew tap buo/cask-upgrade
 brew tap caskroom/fonts
 brew cask install font-inconsolata
