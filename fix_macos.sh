@@ -170,7 +170,20 @@ killall Finder
 # sudo touch /private/var/vm/sleepimage
 # sudo chflags uchg /private/var/vm/sleepimage
 
-sudo pmset -a standbydelay 300 standby 0 halfdim 1 powernap 0 gpusiwtch 2 disksleep 0 sleep 90 autopoweroffdelay 0 hibernatemode 25 autopoweroff 0 ttyskeepawake 1 displaysleep 60 acwake 0 lidwake 1
+sudo pmset -a standbydelay 300 
+sudo pmset -a standby 0 
+sudo pmset -a halfdim 1 
+sudo pmset -a powernap 0 
+sudo pmset -a gpusiwtch 2 
+sudo pmset -a disksleep 0 
+sudo pmset -a sleep 90 
+sudo pmset -a autopoweroffdelay 0 
+sudo pmset -a hibernatemode 25 
+sudo pmset -a autopoweroff 0 
+sudo pmset -a ttyskeepawake 1 
+sudo pmset -a displaysleep 60 
+sudo pmset -a acwake 0 
+sudo pmset -a lidwake 1
 
 # Copy settings
 
