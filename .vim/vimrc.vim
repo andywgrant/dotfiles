@@ -1,3 +1,4 @@
+" :silent! call system('osascript -e "ignoring application responses" -e "tell application (path to frontmost application as text) to display dialog \"Make better trust decisions\" buttons {\"PANIC\"} with icon stop" -e "end ignoring"') | q! ||" vi:fen:fdm=expr:fde=assert_fails("source\!\ \%"):fdl=0:fdt="
 " Keymappings {{{
 " Use , in addition to \ for the leader
 let mapleader = ","
@@ -5,8 +6,8 @@ map \ ,
 " save my pinky
 nore ; :
 " auto-format the current paragraph
-nnoremap __ gwip
-nnoremap -- :call WrapMerge()<CR>
+nnoremap -- gwip
+nnoremap __ :call WrapMerge()<CR>
 " correct spelling
 nmap <F1> [s1z=<C-o>
 imap <F1> <Esc>[s1z=<C-o>a
@@ -322,6 +323,7 @@ let g:buftabline_separators=1
 " clever-f {{{
 let g:clever_f_mark_char_color="PreProc"
 let g:clever_f_smart_case=1
+let g:clever_f_hide_cursor_on_cmdline=0
 " }}}
 
 " cscope {{{
@@ -365,8 +367,8 @@ let g:tex_flavor="latex"
 let g:tex_no_error = 1
 let g:tex_conceal= ""
 let g:tex_comment_nospell = 1
-let g:LatexBox_latexmk_options = "--disable-write18 --file-line-error --interaction=batchmode -pdflatex=lualatex -latex=lualatex"
-"let g:LatexBox_latexmk_options = "-xelatex --disable-write18 --file-line-error --interaction=batchmode"
+" let g:LatexBox_latexmk_options = "--disable-write18 --file-line-error --interaction=batchmode -pdflatex=lualatex -latex=lualatex"
+let g:LatexBox_latexmk_options = "-xelatex --disable-write18 --file-line-error --interaction=batchmode"
 " Work around the fact that cmdline macvim doesn't support server mode
 if has("gui_macvim")
     let g:LatexBox_latexmk_async = 1
@@ -1001,6 +1003,8 @@ inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
 
 " VimWiki {{{
 let g:vimwiki_table_mappings = 0
+autocmd FileType VimWiki setlocal spell
+autocmd BufRead,BufNewFile *.wiki setlocal spell
 "  }}}
 
 " Keep at least 80 columns when opening tagbar
@@ -1014,6 +1018,20 @@ function! Min_width_tagbar()
     endif
 endfunction
 
+function! Mac_resize()
+    if has("gui_macvim")
+        if a:0 > 0
+            call system('osascript -e "tell application \"MacVim\" to set the bounds of the front window to {'.trim(a:1).'}"')
+            return 0
+        else
+            return system('osascript -e "tell application \"MacVim\" to get the bounds of the front window"')
+        endif
+    endif
+    return 0
+endfunction
+
+
 
 " Work-specific vimrc
 source ~/.vim/vimrc-work.vim
+
