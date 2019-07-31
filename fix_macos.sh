@@ -128,8 +128,8 @@ defaults write com.apple.spotlight orderedItems -array \
     '{ enabled = 0; name = MUSIC; }' \
     '{ enabled = 0; name = PDF; }' \
     '{ enabled = 0; name = PRESENTATIONS; }' \
-    '{ enabled = 0; name = SOURCE;} '
-    '{ enabled = 0; name = SPREADSHEETS; }' \
+    '{ enabled = 0; name = SOURCE;}' \
+    '{ enabled = 0; name = SPREADSHEETS; }'
 
 
 # Disable Time Machine icon
