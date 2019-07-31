@@ -1,0 +1,22 @@
+# Make it look good
+--pretty
+
+# Smart case
+--smart-case
+
+# Don't let ripgrep vomit really long lines to my terminal, and show a preview.
+--max-columns=150
+--max-columns-preview
+
+# Don't skip hidden files
+--hidden
+# And ignore ignore files
+--no-ignore
+--no-ignore-dot
+--no-ignore-global
+--no-ignore-vcs
+# But do skip .git 
+--glob=!.git/*
+
+# Don't include ctags file
+--glob=!tags

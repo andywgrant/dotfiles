@@ -31,6 +31,13 @@ alias -g M='|more'
 alias -g H='|head'
 alias -g T='|tail'
 
+# Show/Hide Desktop icons
+alias hidedesk='defaults write com.apple.finder CreateDesktop -bool FALSE;killall Finder'
+alias showdesk='defaults write com.apple.finder CreateDesktop -bool TRUE;killall Finder'
+
+# Google Chrome Alias
+alias google-chrome='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome'
+
 setopt autolist correctall automenu
 #setopt pushdtohome pushdsilent #autopushd
 setopt nolistbeep nobeep
@@ -247,6 +254,8 @@ macosx_lockdown_drive() {
 
 export ANDROID_HOME=/usr/local/opt/android-sdk
 
+source ~/.zshrc-work
+
 fpath=(/usr/local/share/zsh-completions $fpath)
 
 PERL_MB_OPT="--install_base \"/Users/agrant/perl5\""; export PERL_MB_OPT;
@@ -271,3 +280,5 @@ export PATH="/usr/local/sbin:$PATH"
 export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!.git/*"'
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+export RIPGREP_CONFIG_PATH=~/.ripgreprc

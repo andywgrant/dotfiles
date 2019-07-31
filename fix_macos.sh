@@ -5,7 +5,7 @@
 sudo nvram boot-args="-v"
 
 # Don't hide things
-defaults write com.apple.Finder AppleShowAllFiles TRUE
+# defaults write com.apple.Finder AppleShowAllFiles TRUE
 defaults write com.apple.Finder ShowPathbar -bool true
 defaults write com.apple.Finder _FXShowPosixPathInTitle -bool true
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
@@ -22,15 +22,17 @@ defaults write com.apple.dock expose-animation-duration -float 0.15
 
 # Use autohide but make it quick
 defaults write com.apple.dock autohide -bool true
-defaults write com.apple.dock autohide-time-modifier -float 0.17
+# defaults write com.apple.dock autohide-time-modifier -float 0.17
 # On second thought, let's make it fast to animate but hard to trigger
-defaults write com.apple.dock autohide-delay -int 2
+# defaults write com.apple.dock autohide-delay -int 2
 
 # Kill dashboard
 defaults write com.apple.dock "dashboard-in-overlay" -bool true
 
 # Remove all dock icons
 defaults write com.apple.dock persistent-apps -array
+defaults write com.apple.dock persistent-others -array
+defaults write com.apple.dock show-recents -int 0
 
 # Allow keyboard navigation for modals
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
@@ -107,28 +109,28 @@ defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool true
 
 # Disable sketchy spotlight options, I really only use it to launch apps
 defaults write com.apple.spotlight orderedItems -array \
-    '{"enabled" = 1;"name" = "APPLICATIONS";}' \
-    '{"enabled" = 0;"name" = "SYSTEM_PREFS";}' \
-    '{"enabled" = 0;"name" = "DIRECTORIES";}' \
-    '{"enabled" = 0;"name" = "PDF";}' \
-    '{"enabled" = 0;"name" = "FONTS";}' \
-    '{"enabled" = 0;"name" = "DOCUMENTS";}' \
-    '{"enabled" = 0;"name" = "MESSAGES";}' \
-    '{"enabled" = 0;"name" = "CONTACT";}' \
-    '{"enabled" = 0;"name" = "EVENT_TODO";}' \
-    '{"enabled" = 0;"name" = "IMAGES";}' \
-    '{"enabled" = 0;"name" = "BOOKMARKS";}' \
-    '{"enabled" = 0;"name" = "MUSIC";}' \
-    '{"enabled" = 0;"name" = "MOVIES";}' \
-    '{"enabled" = 0;"name" = "PRESENTATIONS";}' \
-    '{"enabled" = 0;"name" = "SPREADSHEETS";}' \
-    '{"enabled" = 0;"name" = "SOURCE";}' \
-    '{"enabled" = 0;"name" = "MENU_DEFINITION";}' \
-    '{"enabled" = 0;"name" = "MENU_OTHER";}' \
-    '{"enabled" = 0;"name" = "MENU_CONVERSION";}' \
-    '{"enabled" = 0;"name" = "MENU_EXPRESSION";}' \
-    '{"enabled" = 0;"name" = "MENU_WEBSEARCH";}' \
-    '{"enabled" = 0;"name" = "MENU_SPOTLIGHT_SUGGESTIONS";}'
+    '{ enabled = 1; name = APPLICATIONS; }' \
+    '{ enabled = 1; name = "MENU_EXPRESSION"; }' \
+    '{ enabled = 0; name = "EVENT_TODO"; }' \
+    '{ enabled = 0; name = "MENU_CONVERSION"; }' \
+    '{ enabled = 0; name = "MENU_DEFINITION"; }' \
+    '{ enabled = 0; name = "MENU_OTHER"; }' \
+    '{ enabled = 0; name = "MENU_SPOTLIGHT_SUGGESTIONS"; }' \
+    '{ enabled = 0; name = "SYSTEM_PREFS"; }' \
+    '{ enabled = 0; name = BOOKMARKS; }' \
+    '{ enabled = 0; name = CONTACT; }' \
+    '{ enabled = 0; name = DIRECTORIES; }' \
+    '{ enabled = 0; name = DOCUMENTS; }' \
+    '{ enabled = 0; name = FONTS; }' \
+    '{ enabled = 0; name = IMAGES; }' \
+    '{ enabled = 0; name = MESSAGES; }' \
+    '{ enabled = 0; name = MOVIES; }' \
+    '{ enabled = 0; name = MUSIC; }' \
+    '{ enabled = 0; name = PDF; }' \
+    '{ enabled = 0; name = PRESENTATIONS; }' \
+    '{ enabled = 0; name = SOURCE;} '
+    '{ enabled = 0; name = SPREADSHEETS; }' \
+
 
 # Disable Time Machine icon
 for domain in ~/Library/Preferences/ByHost/com.apple.systemuiserver.*; do
