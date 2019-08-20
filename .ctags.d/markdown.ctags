@@ -1,0 +1,6 @@
+--langmap=markdown:.markdown
+--regex-markdown=/^#[ \t]+(.*)/\1/h/
+--regex-markdown=/^##[ \t]+(.*)/\1/i/
+--regex-markdown=/^###[ \t]+(.*)/\1/j/
+--regex-markdown=/^####[ \t]+(.*)/\1/k/
+--regex-markdown=/^#####[ \t]+(.*)/\1/l/

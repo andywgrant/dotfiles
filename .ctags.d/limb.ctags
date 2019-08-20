@@ -1,0 +1,4 @@
+--langdef=limb
+--langmap=limb:.md
+--mline-regex-limb=/^(.+)\n={13}$/\1/h,Heading_L1/{mgroup=1}
+--mline-regex-limb=/^(.+)\n-{13}$/\1/i,Heading_L2/{mgroup=1}
