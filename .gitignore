@@ -4,5 +4,6 @@
 .vim/temp_dirs/
 .vim/view/
 .vim/vimrc-work.vim
+.vim/sessions/
 .vim_runtime/amix-vim/temp_dirs/
 .vim_runtime/temp_dirs/
