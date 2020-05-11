@@ -1,4 +1,15 @@
-# For use as Windows console
+# Oh-My-ZSH setup
+# export ZSH=$HOME/.zsh
+# plugins=(git
+#     cp
+#     iterm2
+#     man
+#     nmap
+#     osx
+#     ripgrep
+# )
+# source $ZSH/oh-my-zsh.sh
+
 # Set up your zsh history
 export HISTSIZE=1000
 export HISTFILE=~/.zhistory
@@ -14,7 +25,7 @@ alias mkdir='nocorrect mkdir' # no spelling correction on mkdir
 #alias d='dirs -v'
 #alias h=history
 alias grep='egrep --color=auto'
-alias ll='ls -l'
+alias ll='ls -la'
 alias la='ls -a'
 alias ping='nocorrect ping'
 
@@ -254,8 +265,6 @@ macosx_lockdown_drive() {
 
 export ANDROID_HOME=/usr/local/opt/android-sdk
 
-source ~/.zshrc-work
-
 fpath=(/usr/local/share/zsh-completions $fpath)
 
 PERL_MB_OPT="--install_base \"/Users/agrant/perl5\""; export PERL_MB_OPT;
@@ -269,7 +278,7 @@ test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_in
 export HOMEBREW_NO_ANALYTICS=1
 export HOMEBREW_NO_INSECURE_REDIRECT=1
 export HOMEBREW_CASK_OPTS=--require-sha
-export PATH="/usr/local/sbin:$PATH"
+export PATH="$(brew --prefix coreutils)/libexec/gnubin:/usr/local/sbin:$PATH"
 
 # ripgrep for fzf
 # --files: List files that would be searched but do not search
@@ -282,3 +291,17 @@ export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!.g
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 export RIPGREP_CONFIG_PATH=~/.ripgreprc
+
+# Better ls
+if ls --color -d . >/dev/null 2>&1; then  # GNU ls
+  export COLUMNS  # Remember columns for subprocesses.
+  eval "$(dircolors)"
+  function ls {
+    command ls -F -h --color=always -v --author --time-style=long-iso -C "$@" | less -R -X -F
+  }
+  alias ll='ls -l'
+  alias l='ls -l -a'
+fi
+export PATH="/usr/local/opt/ruby/bin:$PATH"
+
+source ~/.zshrc-work

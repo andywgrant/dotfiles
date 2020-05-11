@@ -1,4 +1,3 @@
-" :silent! call system('osascript -e "ignoring application responses" -e "tell application (path to frontmost application as text) to display dialog \"Make better trust decisions\" buttons {\"PANIC\"} with icon stop" -e "end ignoring"') | q! ||" vi:fen:fdm=expr:fde=assert_fails("source\!\ \%"):fdl=0:fdt="
 " Keymappings {{{
 " Use , in addition to \ for the leader
 let mapleader = ","
@@ -6,8 +5,8 @@ map \ ,
 " save my pinky
 nore ; :
 " auto-format the current paragraph
-nnoremap -- gwip
-nnoremap __ :call WrapMerge()<CR>
+nnoremap __ gwip
+nnoremap -- :call WrapMerge()<CR>
 " correct spelling
 nmap <F1> [s1z=<C-o>
 imap <F1> <Esc>[s1z=<C-o>a
@@ -103,8 +102,8 @@ endif
 " Let me choose the ctag
 nnoremap <C-]> :execute 'tj' expand('<cword>')<CR>zv
 " Old Mark mapping is preferable to new one
-nmap <unique> <S-F8> <Plug>MarkSet
-xmap <unique> <S-F8> <Plug>MarkSet
+nmap <unique> <F8> <Plug>MarkSet
+xmap <unique> <F8> <Plug>MarkSet
 " Home insert-mode escape
 inoremap kj <esc>
 " }}}
@@ -121,9 +120,9 @@ if has('gui')
     set guioptions=giM       " get rid of useless stuff in the gui
     set clipboard=unnamed
     if has("gui_macvim")
-        set guifont=Inconsolata:h18
-        noremap <Leader>zo :set guifont=Inconsolata:h4<CR>
-        noremap <Leader>zi :set guifont=Inconsolata:h18<CR>
+        set guifont=Inconsolata:h15
+        noremap <Leader>zo :set guifont=Inconsolata:h8<CR>
+        noremap <Leader>zi :set guifont=Inconsolata:h20<CR>
     else
         set guifont=Inconsolata\ 14
     endif
@@ -190,7 +189,7 @@ set backspace=indent,eol,start
 set whichwrap+=<,>,h,l,[,]  " left/right cursor navigation wraps
 set ruler                   " show position in file
 set title
-set titlestring=%t%(\ %M%)%(\ (%<%{expand(\"%:p:h:s?/Users/agrant/ncc/current_project/??\")})%)%(\ %a%)
+set titlestring=%t%(\ %M%)%(\ (%<%{expand(\"%:p:h:s?/Users/agrant/ncc/Projects/??:?/Users/agrant/ncc/current_project/??\")})%)%(\ %a%)
 set ttimeout
 set ttimeoutlen=100         " Make it so Esc enters Normal mode right away
 set helpheight=0            " no minimum helpheight
@@ -250,6 +249,9 @@ endif
 
 " Use ripgrep {{{
 set grepprg=rg\ --vimgrep
+
+let g:rg_binary = "rg"
+let g:rg_command = g:rg_binary . " --vimgrep --glob=\"\!.git/*\" --glob=\"\!tags\""
 
 " --column: Show column number
 " --line-number: Show line number
@@ -367,8 +369,8 @@ let g:tex_flavor="latex"
 let g:tex_no_error = 1
 let g:tex_conceal= ""
 let g:tex_comment_nospell = 1
-" let g:LatexBox_latexmk_options = "--disable-write18 --file-line-error --interaction=batchmode -pdflatex=lualatex -latex=lualatex"
-let g:LatexBox_latexmk_options = "-xelatex --disable-write18 --file-line-error --interaction=batchmode"
+let g:LatexBox_latexmk_options = "--disable-write18 --file-line-error --interaction=batchmode -pdflatex=lualatex -latex=lualatex"
+"let g:LatexBox_latexmk_options = "-xelatex --disable-write18 --file-line-error --interaction=batchmode"
 " Work around the fact that cmdline macvim doesn't support server mode
 if has("gui_macvim")
     let g:LatexBox_latexmk_async = 1
@@ -730,6 +732,11 @@ augroup syntax
     autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
     autocmd FileType ruby setlocal omnifunc=rubycomplete#Complete
 augroup end
+
+augroup icalednar
+    au BufWinEnter *.ics set filetype=icalendar
+augroup END
+
 " }}}
 
 " Custom functions {{{
@@ -1030,8 +1037,78 @@ function! Mac_resize()
     return 0
 endfunction
 
+" Automatically save the current session whenever vim is closed
+function! MakeSession()
+  let b:sessiondir = $HOME . "/.vim/sessions" . getcwd()
+  if (filewritable(b:sessiondir) != 2)
+    exe 'silent !mkdir -p ' b:sessiondir
+    redraw!
+  endif
+  let b:filename = b:sessiondir . '/session.vim'
+  exe "mksession! " . b:filename
+endfunction
 
+function! LoadSession()
+  let b:sessiondir = $HOME . "/.vim/sessions" . getcwd()
+  let b:sessionfile = b:sessiondir . "/session.vim"
+  if (filereadable(b:sessionfile))
+    exe 'source ' b:sessionfile
+  else
+    echo "No session loaded."
+  endif
+endfunction
+
+set ssop-=options    " do not store global and local values in a session
+set ssop-=folds      " do not store folds
+
+" Adding automations for when entering or leaving Vim
+" if(argc() == 0)
+"   au VimEnter * nested :call LoadSession()
+" endif
+" au VimLeavePre * :call MakeSession()
+
+" URL encode/decode
+vnoremap <silent> <leader>u :!python -c 'import sys,urllib;print urllib.quote(sys.stdin.read().strip())'<cr>
+vnoremap <silent> <leader> :!python -c 'import sys,urllib;print urllib.unquote(sys.stdin.read().strip())'<cr>
+
+" CtrlSF
+" Prompt for search
+nmap     <C-F><C-r> <Plug>CtrlSFPrompt
+" Search for word under curosr
+nmap     <C-F><C-f> <Plug>CtrlSFCwordExec
+" Search for selected text
+vmap     <C-F><C-f> <Plug>CtrlSFVwordExec
+" Toggle search window
+nnoremap <C-F><C-t> :CtrlSFToggle<CR>
+" Toggle search window insert mode
+inoremap <C-F><C-t> <Esc>:CtrlSFToggle<CR>
+let g:ctrlsf_ackprg = '/usr/local/bin/rg' " Use rg
+let g:ctrlsf_confirm_unsaving_quit = 0 " I don't plan on making changes
+let g:ctrlsf_extra_root_markers = ['tags'] " Determine project root based on ctags file
+let g:ctrlsf_default_root = 'project+fw' " Try to find root from current file, fall back to CWD
+let g:ctrlsf_follow_symlinks = 0 " Don't follow symlinks
+let g:ctrlsf_position = 'bottom' " Open on the bottom
+let g:ctrlsf_winsize = '25%' " Don't be greedy
+let g:ctrlsf_parse_speed = 200 " Don't overload vim
+let g:ctrlsf_default_view_mode = 'compact' " quickfix style to start
+" Auto focus when done, if it was fast
+let g:ctrlsf_auto_focus = {
+    \ "at" : "done",
+    \ "duration_less_than": 1000
+    \ }
+" Customize key mappings
+let g:ctrlsf_mapping = {
+    \ "next": "n",
+    \ "prev": "N",
+    \ "pquit": "P",
+    \ "popenf": "",
+    \ }
+" Close preview window from within search window
+autocmd FileType ctrlsf map <silent> P :call ctrlsf#preview#ClosePreviewWindow()<CR>
+
+" Toggle semantic highlighting
+:nnoremap <F7> :SemanticHighlightToggle<CR>
 
 " Work-specific vimrc
 source ~/.vim/vimrc-work.vim
-
+source ~/.vim/vimrc-apex.vim

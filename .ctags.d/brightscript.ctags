@@ -1,0 +1,5 @@
+--langdef=BrightScript
+--langmap=BrightScript:.brs
+--regex-BrightScript=/^Function[ \t]*([a-zA-Z0-9_]+)/\1/f,function/
+--regex-BrightScript=/^Sub[ \t]*([a-zA-Z0-9_]+)/\1/s,sub/
+--regex-BrightScript=/^[ \t]*(\w+) ?=/\1/v,variable/

@@ -39,6 +39,16 @@ Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'ajh17/VimCompletesMe'
 Plug 'https://github.com/jszakmeister/markdown2ctags'
+Plug 'https://github.com/inkarkat/vim-mark'
+Plug 'https://github.com/inkarkat/vim-ingo-library'
+Plug 'https://github.com/vim-scripts/icalendar.vim'
+Plug 'dyng/ctrlsf.vim'
+" Vim in Browser
+Plug 'pandysong/ghost-text.vim'
+" Semantic Highlighting
+Plug 'jaxbot/semantic-highlight.vim'
+
+
 
 " On-demand loading
 Plug 'https://github.com/scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
@@ -48,6 +58,8 @@ Plug 'https://github.com/vim-php/phpctags', { 'for': 'php' }
 Plug 'https://github.com/tpope/vim-markdown', { 'for': 'markdown' }
 Plug 'https://github.com/fatih/vim-go', { 'for': 'go' }
 Plug 'https://github.com/leafgarland/typescript-vim', { 'for': 'typescript' }
+Plug 'https://github.com/neowit/vim-force.com', { 'for': 'apexcode' }
+Plug 'https://github.com/rust-lang/rust.vim', { 'for': 'rust' }
 
 " Initialize plugin system
 call plug#end()

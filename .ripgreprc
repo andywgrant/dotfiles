@@ -5,7 +5,7 @@
 --smart-case
 
 # Don't let ripgrep vomit really long lines to my terminal, and show a preview.
---max-columns=150
+--max-columns=250
 --max-columns-preview
 
 # Don't skip hidden files
@@ -20,3 +20,7 @@
 
 # Don't include ctags file
 --glob=!tags
+--glob=!cscope.out
+
+--glob=!locales/
+--glob=!tests/

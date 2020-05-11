@@ -214,9 +214,9 @@ brew install ctags
 read -p "Preparing to install casks"
 # brew install caskroom/cask/brew-cask
 brew tap buo/cask-upgrade
-brew tap caskroom/fonts
-brew cask install font-inconsolata
-brew cask install font-source-code-pro
+# brew tap caskroom/fonts
+# brew cask install font-inconsolata
+# brew cask install font-source-code-pro
 brew cask install iterm2
 brew cask install spectacle
 brew cask install karabiner-elements
