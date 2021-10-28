@@ -205,10 +205,10 @@ read -p "Preparing to install apps"
 sudo xcodebuild -license
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 brew doctor
-brew install cscope nmap python3 zsh rg coreutils colordiff exiftool
-brew install flawfinder fswatch hashcat rats wdiff the_silver_searcher
+brew install cscope nmap python3 rg coreutils colordiff exiftool
+brew install ctags fswatch wdiff neovim
 brew install vim --with-lua --with-python3
-brew install ctags
+brew install bat eth-p/software/bat-extras
 
 # Install casks
 read -p "Preparing to install casks"
@@ -218,7 +218,7 @@ brew tap buo/cask-upgrade
 # brew cask install font-inconsolata
 # brew cask install font-source-code-pro
 brew cask install iterm2
-brew cask install spectacle
+brew cask install rectangle
 brew cask install karabiner-elements
 brew cask install wireshark
 brew cask install macvim

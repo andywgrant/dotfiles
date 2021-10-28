@@ -18,7 +18,7 @@ Plug 'https://github.com/tpope/vim-commentary'
 Plug 'https://github.com/godlygeek/tabular'
 Plug 'https://github.com/MarcWeber/vim-addon-mw-utils'
 " Plug 'https://github.com/garbas/vim-snipmate'
-Plug 'https://github.com/SirVer/ultisnips'
+" Plug 'https://github.com/SirVer/ultisnips'
 Plug 'https://github.com/honza/vim-snippets'
 Plug 'https://github.com/tomtom/quickfixsigns_vim'
 Plug 'https://github.com/vim-scripts/CursorLineCurrentWindow'
@@ -43,8 +43,6 @@ Plug 'https://github.com/inkarkat/vim-mark'
 Plug 'https://github.com/inkarkat/vim-ingo-library'
 Plug 'https://github.com/vim-scripts/icalendar.vim'
 Plug 'dyng/ctrlsf.vim'
-" Vim in Browser
-Plug 'pandysong/ghost-text.vim'
 " Semantic Highlighting
 Plug 'jaxbot/semantic-highlight.vim'
 
@@ -60,6 +58,7 @@ Plug 'https://github.com/fatih/vim-go', { 'for': 'go' }
 Plug 'https://github.com/leafgarland/typescript-vim', { 'for': 'typescript' }
 Plug 'https://github.com/neowit/vim-force.com', { 'for': 'apexcode' }
 Plug 'https://github.com/rust-lang/rust.vim', { 'for': 'rust' }
+Plug 'https://github.com/udalov/kotlin-vim', { 'for': 'kotlin' }
 
 " Initialize plugin system
 call plug#end()

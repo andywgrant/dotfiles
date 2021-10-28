@@ -121,10 +121,11 @@ if has('gui')
     set clipboard=unnamed
     if has("gui_macvim")
         set guifont=Inconsolata:h15
-        noremap <Leader>zo :set guifont=Inconsolata:h8<CR>
-        noremap <Leader>zi :set guifont=Inconsolata:h20<CR>
+        noremap <Leader>zo :set guifont=Inconsolata:h10<CR>
+        noremap <Leader>zi :set guifont=Inconsolata:h22<CR>
+        noremap <Leader>zn :set guifont=Inconsolata:h15<CR>
     else
-        set guifont=Inconsolata\ 14
+        set guifont=Inconsolata\ 15
     endif
 endif
 if has('gui_running')
@@ -165,7 +166,7 @@ else
 endif
 set autoindent
 set shiftround              " Round to the nearest shiftwidth when shifting
-set textwidth=78
+set textwidth=76            " 76 because of typical 1/3 window size
 set linebreak               " When soft-wrapping long lines, break at a word
 set wrap
 set comments-=s1:/*,mb:*,ex:*/
@@ -189,7 +190,7 @@ set backspace=indent,eol,start
 set whichwrap+=<,>,h,l,[,]  " left/right cursor navigation wraps
 set ruler                   " show position in file
 set title
-set titlestring=%t%(\ %M%)%(\ (%<%{expand(\"%:p:h:s?/Users/agrant/ncc/Projects/??:?/Users/agrant/ncc/current_project/??\")})%)%(\ %a%)
+set titlestring=%t%(\ %M%)%(\ (%<%{expand(\"%:p:h:s?/Users/agrant/zoom/Projects/??:?/Users/agrant/zoom/current_project/??\")})%)%(\ %a%)
 set ttimeout
 set ttimeoutlen=100         " Make it so Esc enters Normal mode right away
 set helpheight=0            " no minimum helpheight
@@ -667,8 +668,8 @@ augroup markdown
     au BufWinEnter *.md,*.notes, silent loadview
     au BufWinEnter *.md,*.notes, imap <C-l> <C-t>
     au BufWinEnter *.md,*.notes, imap <C-h> <C-d>
-    au BufWinEnter *.md,*.notes,*mutt*,*.wiki imap >> <C-t>
-    au BufWinEnter *.md,*.notes,*mutt*,*.wiki imap << <C-d>
+    au BufWinEnter *.md,*.notes,*mutt*,*.wiki,*.txt imap >> <C-t>
+    au BufWinEnter *.md,*.notes,*mutt*,*.wiki,*.txt imap << <C-d>
     au FileType markdown set spell
     au FileType markdown set textwidth=78 complete+=k comments+=b:-,b:+,b:*,b:+,n:>
 augroup end
@@ -722,6 +723,8 @@ augroup misc
     " hangs the UI
     au FileChangedRO * se noreadonly
     au GUIEnter * set visualbell t_vb=
+    imap >> <C-t>
+    imap << <C-d>
 augroup end
 
 augroup syntax
@@ -1069,7 +1072,7 @@ set ssop-=folds      " do not store folds
 
 " URL encode/decode
 vnoremap <silent> <leader>u :!python -c 'import sys,urllib;print urllib.quote(sys.stdin.read().strip())'<cr>
-vnoremap <silent> <leader> :!python -c 'import sys,urllib;print urllib.unquote(sys.stdin.read().strip())'<cr>
+vnoremap <silent> <leader>U :!python -c 'import sys,urllib;print urllib.unquote(sys.stdin.read().strip())'<cr>
 
 " CtrlSF
 " Prompt for search
@@ -1107,8 +1110,16 @@ let g:ctrlsf_mapping = {
 autocmd FileType ctrlsf map <silent> P :call ctrlsf#preview#ClosePreviewWindow()<CR>
 
 " Toggle semantic highlighting
-:nnoremap <F7> :SemanticHighlightToggle<CR>
+nnoremap <F7> :SemanticHighlightToggle<CR>
+
+" Insert date and time
+nmap <F3> i<C-R>=strftime("%Y-%m-%d")<CR><Esc>
+imap <F3> <C-R>=strftime("%Y-%m-%d")<CR>
+
+" Indent from insert mode
+imap >> <C-t>
+imap << <C-d>
+
 
 " Work-specific vimrc
 source ~/.vim/vimrc-work.vim
-source ~/.vim/vimrc-apex.vim

@@ -1,3 +1,5 @@
+# zmodload zsh/zprof
+
 # Oh-My-ZSH setup
 # export ZSH=$HOME/.zsh
 # plugins=(git
@@ -11,9 +13,9 @@
 # source $ZSH/oh-my-zsh.sh
 
 # Set up your zsh history
-export HISTSIZE=1000
+export HISTSIZE=10000
 export HISTFILE=~/.zhistory
-export SAVEHIST=1000
+export SAVEHIST=10000
 
 # Set up aliases
 alias mv='nocorrect mv'       # no spelling correction on mv
@@ -28,6 +30,8 @@ alias grep='egrep --color=auto'
 alias ll='ls -la'
 alias la='ls -a'
 alias ping='nocorrect ping'
+unsetopt correct # no spelling correction at all
+
 
 # List only directories and symbolic
 # links that point to directories
@@ -45,6 +49,9 @@ alias -g T='|tail'
 # Show/Hide Desktop icons
 alias hidedesk='defaults write com.apple.finder CreateDesktop -bool FALSE;killall Finder'
 alias showdesk='defaults write com.apple.finder CreateDesktop -bool TRUE;killall Finder'
+
+# Restart Screen Sharing
+alias fixscreen='sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.screensharing.plist &&  sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.screensharing.plist'
 
 # Google Chrome Alias
 alias google-chrome='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome'
@@ -77,13 +84,29 @@ bindkey ' ' magic-space  # also do history expansion on space
 #bindkey ^W backward-delete-word
 
 # taskwarrior tab completion
-zstyle ':completion:*:*:task:*' verbose yes
-zstyle ':completion:*:*:task:*:descriptions' format '%U%B%d%b%u'
+# zstyle ':completion:*:*:task:*' verbose yes
+# zstyle ':completion:*:*:task:*:descriptions' format '%U%B%d%b%u'
 
-zstyle ':completion:*:*:task:*' group-name ''
+# zstyle ':completion:*:*:task:*' group-name ''
 
-alias t=task
-fpath=($fpath /usr/share/doc/task/scripts/zsh /usr/local/share/zsh/site-functions)
+# alias t=task
+# fpath=($fpath /usr/share/doc/task/scripts/zsh /usr/local/share/zsh/site-functions)
+
+# ripgrep for fzf
+# --files: List files that would be searched but do not search
+# --no-ignore: Do not respect .gitignore, etc...
+# --hidden: Search hidden files and folders
+# --follow: Follow symlinks
+# --glob: Additional conditions for search (in this case ignore everything in the .git/ folder)
+export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!.git/*"'
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+export RIPGREP_CONFIG_PATH=~/.ripgreprc
+
+
+fpath=($fpath /usr/local/share/zsh/site-functions)
+fpath=(/usr/local/share/zsh-completions $fpath)
 
 # be verbose, i.e. show descriptions
 zstyle ':completion:*' verbose yes
@@ -211,7 +234,7 @@ stty stop undef
 autoload -U select-word-style
 select-word-style bash
 
-alias ack='ack --ignore-file=is:tags'
+# alias ack='ack --ignore-file=is:tags'
 
 export GOPATH="$HOME/go"
 export PATH="$HOME/bin:$HOME/go/bin:/usr/local/bin:$PATH"
@@ -222,35 +245,35 @@ case $TERM in
     xterm*)
         precmd () {print -Pn "\033]0;%m: %~\007"}
         # Mac AutoJump
-        [[ -s `brew --prefix`/etc/autojump.sh ]] && . `brew --prefix`/etc/autojump.sh
+        # [[ -s `brew --prefix`/etc/autojump.sh ]] && . `brew --prefix`/etc/autojump.sh
         ;;
 esac
 
-case $TERM in
-    cygwin)
-        precmd () {print -Pn "\033];%m: %~\007"}
-        preexec () { print -Pn "\e]0;$1\a" }
-        # autojump
-        fpath=($fpath ~/.autojump)
-        source /cygdrive/c/Users/andy/.autojump/etc/profile.d/autojump.zsh
-        alias start='cygstart'
-        #alias vim='mintty vim'
-        vim() {
-            (mintty vim "$*" &) 2> /dev/null
-        }
+#case $TERM in
+#    cygwin)
+#        precmd () {print -Pn "\033];%m: %~\007"}
+#        preexec () { print -Pn "\e]0;$1\a" }
+#        # autojump
+#        fpath=($fpath ~/.autojump)
+#        source /cygdrive/c/Users/andy/.autojump/etc/profile.d/autojump.zsh
+#        alias start='cygstart'
+#        #alias vim='mintty vim'
+#        vim() {
+#            (mintty vim "$*" &) 2> /dev/null
+#        }
 
-        gvim() {
-            (/cygdrive/c/Program\ Files\ \(x86\)/Vim/vim74/gvim.exe "`cygpath -w $*`" &) 2> /dev/null
-        }
+#        gvim() {
+#            (/cygdrive/c/Program\ Files\ \(x86\)/Vim/vim74/gvim.exe "`cygpath -w $*`" &) 2> /dev/null
+#        }
 
-        python() {
-            (/cygdrive/c/python27/python `cygpath -w $1` $argv[2,-1])
-        }
+#        python() {
+#            (/cygdrive/c/python27/python `cygpath -w $1` $argv[2,-1])
+#        }
 
-        export CYGWIN="nodosfilewarning"
-        alias ls='ls --color'
-        ;;
-esac
+#        export CYGWIN="nodosfilewarning"
+#        alias ls='ls --color'
+#        ;;
+#esac
 
 # Locks down a thumb drive so that Mac OS X will not write any metadata to it.
 macosx_lockdown_drive() {
@@ -263,34 +286,20 @@ macosx_lockdown_drive() {
     touch .metadata_never_index
 }
 
-export ANDROID_HOME=/usr/local/opt/android-sdk
+export ANDROID_HOME=~/Library/Android/sdk
 
-fpath=(/usr/local/share/zsh-completions $fpath)
+# PERL_MB_OPT="--install_base \"/Users/andygrant/perl5\""; export PERL_MB_OPT;
+# PERL_MM_OPT="INSTALL_BASE=/Users/andygrant/perl5"; export PERL_MM_OPT;
 
-PERL_MB_OPT="--install_base \"/Users/agrant/perl5\""; export PERL_MB_OPT;
-PERL_MM_OPT="INSTALL_BASE=/Users/agrant/perl5"; export PERL_MM_OPT;
+# export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
 
-export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
-
-test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
+# test -e ${HOME}/.iterm2_shell_integration.zsh && source ${HOME}/.iterm2_shell_integration.zsh
 
 # Homebrew hardening
 export HOMEBREW_NO_ANALYTICS=1
 export HOMEBREW_NO_INSECURE_REDIRECT=1
 export HOMEBREW_CASK_OPTS=--require-sha
 export PATH="$(brew --prefix coreutils)/libexec/gnubin:/usr/local/sbin:$PATH"
-
-# ripgrep for fzf
-# --files: List files that would be searched but do not search
-# --no-ignore: Do not respect .gitignore, etc...
-# --hidden: Search hidden files and folders
-# --follow: Follow symlinks
-# --glob: Additional conditions for search (in this case ignore everything in the .git/ folder)
-export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!.git/*"'
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-export RIPGREP_CONFIG_PATH=~/.ripgreprc
 
 # Better ls
 if ls --color -d . >/dev/null 2>&1; then  # GNU ls
@@ -304,4 +313,11 @@ if ls --color -d . >/dev/null 2>&1; then  # GNU ls
 fi
 export PATH="/usr/local/opt/ruby/bin:$PATH"
 
-source ~/.zshrc-work
+# Syntax highlighting cat
+command -v bat > /dev/null && alias cat='bat --style=plain --pager=never'
+
+# AWS TAB completion
+autoload bashcompinit && bashcompinit
+complete -C '/usr/local/bin/aws_completer' aws
+
+# zprof
