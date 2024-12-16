@@ -43,8 +43,8 @@ Plug 'https://github.com/inkarkat/vim-mark'
 Plug 'https://github.com/inkarkat/vim-ingo-library'
 Plug 'https://github.com/vim-scripts/icalendar.vim'
 Plug 'dyng/ctrlsf.vim'
-" Semantic Highlighting
-Plug 'jaxbot/semantic-highlight.vim'
+Plug 'jaxbot/semantic-highlight.vim' " Semantic Highlighting
+Plug 'Eliot00/git-lens.vim'
 
 
 

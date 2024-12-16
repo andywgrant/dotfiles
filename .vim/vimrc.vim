@@ -179,7 +179,7 @@ autocmd Filetype *
         \	if &omnifunc == "" |
         \		setlocal omnifunc=syntaxcomplete#Complete |
         \	endif
-set tags=./tags;
+set tags=./tags,tags;$HOME
 set nobackup                " ugh, stop making useless crap
 set nowritebackup           " same with overwriting
 set noswapfile
@@ -1015,6 +1015,7 @@ inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
 let g:vimwiki_table_mappings = 0
 autocmd FileType VimWiki setlocal spell
 autocmd BufRead,BufNewFile *.wiki setlocal spell
+autocmd BufEnter * if &filetype == "" | setlocal ft=vimwiki | endif
 "  }}}
 
 " Keep at least 80 columns when opening tagbar
@@ -1119,7 +1120,6 @@ imap <F3> <C-R>=strftime("%Y-%m-%d")<CR>
 " Indent from insert mode
 imap >> <C-t>
 imap << <C-d>
-
 
 " Work-specific vimrc
 source ~/.vim/vimrc-work.vim
